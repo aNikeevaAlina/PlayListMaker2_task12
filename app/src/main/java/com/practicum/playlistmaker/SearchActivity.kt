@@ -4,11 +4,13 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
@@ -53,13 +55,13 @@ class SearchActivity : AppCompatActivity() {
     private var adapter = TrackAdapter()
     private val historyAdapter = TrackAdapter()
 
+    private val sharedPrefs by lazy { getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE) }
+    private val searchHistory by lazy { SearchHistory(sharedPrefs) }
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
-
-        val sharedPrefs = getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE)
-        val searchHistory = SearchHistory(sharedPrefs)
 
         findItems()
         recyclerSetting()
@@ -71,6 +73,7 @@ class SearchActivity : AppCompatActivity() {
             sharedPrefs.edit().clear().apply()
             historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
             historyAdapter.notifyDataSetChanged()
+            historySearchGroup.visibility = View.GONE
         }
 
         adapter.trackList = trackList
@@ -138,12 +141,14 @@ class SearchActivity : AppCompatActivity() {
                             recycler.visibility = View.GONE
                         }
                     }
+                    historySearchGroup.visibility = View.GONE
                 }
 
                 override fun onFailure(call: Call<ItunesResponse>, t: Throwable) {
                     linearNoInternet.visibility = View.VISIBLE
                     linearNothingFound.visibility = View.GONE
                     recycler.visibility = View.GONE
+                    historySearchGroup.visibility = View.GONE
                 }
             })
     }
@@ -164,6 +169,8 @@ class SearchActivity : AppCompatActivity() {
             hideKeyboard(currentFocus ?: View(this))
             trackList.clear()
             adapter.notifyDataSetChanged()
+            historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
+            historyAdapter.notifyDataSetChanged()
             linearNothingFound.visibility = View.GONE
             linearNoInternet.visibility = View.GONE
         }
@@ -172,14 +179,22 @@ class SearchActivity : AppCompatActivity() {
     private fun addChangeListeners() {
         // Реагирует на смену фокуса в EditText
         inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            historySearchGroup.visibility = if (hasFocus && inputEditText.text.isEmpty()) View.VISIBLE else View.GONE
+            if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
+                historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
+            }
         }
         // Реагирует на ввод текста в EditText
+        inputEditText.requestFocus()
         inputEditText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
             }
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                historySearchGroup.visibility = if (historySearchGroup.hasFocus() && p0?.isEmpty() == true) View.VISIBLE else View.GONE
+            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
+                    historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
+
+                }
+                clearButton.visibility = clearButtonVisibility(s)
+                inputSaveText = s.toString()
             }
             override fun afterTextChanged(p0: Editable?) {
             }
@@ -193,21 +208,6 @@ class SearchActivity : AppCompatActivity() {
             }
             false
         }
-
-        val simpleTextWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                clearButton.visibility = clearButtonVisibility(s)
-                inputSaveText = s.toString()
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-            }
-        }
-        // Реагирует на ввод текста в EditText для отображения кнопок
-        inputEditText.addTextChangedListener(simpleTextWatcher)
     }
 
     private fun findItems() {
