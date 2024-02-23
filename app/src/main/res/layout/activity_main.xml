@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSecondaryVariant"
+    android:orientation="vertical"
+    android:paddingVertical="14dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dp"
+        android:text="@string/play_list"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size"
+        android:fontFamily="@font/ys_display_regular"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="40dp"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/button_search"
+            android:text="@string/search"
+            app:icon="@drawable/ic_search"
+            style="@style/ButtonStyle"
+
+            />
+
+        <Button
+            android:id="@+id/button_media"
+            android:text="@string/media"
+            app:icon="@drawable/ic_library"
+            style="@style/ButtonStyle"/>
+
+        <Button
+            android:id="@+id/button_setting"
+            android:text="@string/setting"
+            app:icon="@drawable/ic_setting"
+            style="@style/ButtonStyle"
+            
+            />
+
+
+    </LinearLayout>
+
+</LinearLayout>
