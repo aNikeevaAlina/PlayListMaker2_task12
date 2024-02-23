@@ -34,7 +34,7 @@ class TrackAdapter(): RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
                 .into(imageTrack)
             nameTrack.text = model.trackName
             nameArtists.text = model.artistName
-            timeTrack.text = SimpleDateFormat("mm:ss", Locale.getDefault()).format(model.trackTimeMillis)
+            timeTrack.text = model.timeFormat()
         }
     }
 
