@@ -41,6 +41,7 @@ class SearchActivity : AppCompatActivity() {
 
     private var lastRequest: String = ""
     var inputSaveText: String = ""
+    private var isClickAllowed = true
 
     private val itunesService = ApiForItunes.retrofit.create(ApiForItunes::class.java)
 
@@ -79,11 +80,11 @@ class SearchActivity : AppCompatActivity() {
 
         inputSaveText = inputEditText.text.toString()
         historyAdapter.itemClickListener = { position, track ->
-            openPlayer(track.trackId)
+            if (clickDebounce()) openPlayer(track.trackId)
         }
         adapter.itemClickListener = { position, track ->
             searchHistory.add(track)
-            openPlayer(track.trackId)
+            if (clickDebounce()) openPlayer(track.trackId)
         }
     }
 
@@ -91,6 +92,7 @@ class SearchActivity : AppCompatActivity() {
         const val PRODUCT_AMOUNT = "PRODUCT_AMOUNT"
         const val HISTORY_SEARCH = "HISTORY_SEARCH"
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -110,6 +112,15 @@ class SearchActivity : AppCompatActivity() {
     private fun searchDebounce() {
         handler.removeCallbacks(searchRunnable)
         handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private fun clickDebounce() : Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
     }
 
     private fun searchTracks() {
