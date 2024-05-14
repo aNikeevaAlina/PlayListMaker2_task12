@@ -198,6 +198,21 @@
 
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/loadingGroup"
+        android:layout_width="match_parent"
+        android:paddingTop="140dp"
+        android:visibility="gone"
+        android:layout_height="wrap_content">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="@color/blue"
+            android:layout_height="wrap_content"/>
+
+    </FrameLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
