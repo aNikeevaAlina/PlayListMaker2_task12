@@ -1,6 +1,7 @@
 package com.practicum.playlistmaker
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -41,14 +42,8 @@ class SearchActivity : AppCompatActivity() {
 
     private var lastRequest: String = ""
     var inputSaveText: String = ""
-    private val itunesBaseUrl = "https://itunes.apple.com"
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(itunesBaseUrl)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-
-    private val itunesService = retrofit.create(ApiForItunes::class.java)
+    private val itunesService = ApiForItunes.retrofit.create(ApiForItunes::class.java)
 
     private var trackList = ArrayList<Track>()
     private var adapter = TrackAdapter()
@@ -82,9 +77,12 @@ class SearchActivity : AppCompatActivity() {
         historyAdapter.notifyDataSetChanged()
 
         inputSaveText = inputEditText.text.toString()
-
+        historyAdapter.itemClickListener = { position, track ->
+            openPlayer(track.trackId)
+        }
         adapter.itemClickListener = { position, track ->
             searchHistory.add(track)
+            openPlayer(track.trackId)
         }
     }
 
@@ -129,6 +127,7 @@ class SearchActivity : AppCompatActivity() {
                             }
                             linearNoInternet.visibility = View.GONE
                         }
+
                         else -> {
                             linearNoInternet.visibility = View.VISIBLE
                             linearNothingFound.visibility = View.GONE
@@ -228,5 +227,10 @@ class SearchActivity : AppCompatActivity() {
         recycler.adapter = adapter
         recyclerViewHistory.layoutManager = LinearLayoutManager(this)
         recyclerViewHistory.adapter = historyAdapter
+    }
+
+    fun openPlayer(trackId: String) {
+        val intent = Intent(this, PlayerActivity::class.java).putExtra("track_id", trackId)
+        startActivity(intent)
     }
 }
