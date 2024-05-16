@@ -3,11 +3,11 @@ package com.practicum.playlistmaker
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
-import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -18,8 +18,6 @@ import com.google.android.material.internal.ViewUtils.hideKeyboard
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 
 class SearchActivity : AppCompatActivity() {
@@ -39,9 +37,11 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var returnItemImageView: ImageView
 
     private lateinit var inputEditText: EditText
+    private lateinit var loadingGroup: FrameLayout
 
     private var lastRequest: String = ""
     var inputSaveText: String = ""
+    private var isClickAllowed = true
 
     private val itunesService = ApiForItunes.retrofit.create(ApiForItunes::class.java)
 
@@ -51,6 +51,8 @@ class SearchActivity : AppCompatActivity() {
 
     private val sharedPrefs by lazy { getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE) }
     private val searchHistory by lazy { SearchHistory(sharedPrefs) }
+    private val handler = Handler(Looper.getMainLooper())
+    private val searchRunnable = Runnable { searchTracks() }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,17 +80,19 @@ class SearchActivity : AppCompatActivity() {
 
         inputSaveText = inputEditText.text.toString()
         historyAdapter.itemClickListener = { position, track ->
-            openPlayer(track.trackId)
+            if (clickDebounce()) openPlayer(track.trackId)
         }
         adapter.itemClickListener = { position, track ->
             searchHistory.add(track)
-            openPlayer(track.trackId)
+            if (clickDebounce()) openPlayer(track.trackId)
         }
     }
 
     companion object {
         const val PRODUCT_AMOUNT = "PRODUCT_AMOUNT"
         const val HISTORY_SEARCH = "HISTORY_SEARCH"
+        private const val SEARCH_DEBOUNCE_DELAY = 2000L
+        private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -105,8 +109,27 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun search(lastText: String) {
-        itunesService.search(lastText)
+    private fun searchDebounce() {
+        handler.removeCallbacks(searchRunnable)
+        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
+    }
+
+    private fun clickDebounce() : Boolean {
+        val current = isClickAllowed
+        if (isClickAllowed) {
+            isClickAllowed = false
+            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+        }
+        return current
+    }
+
+    private fun searchTracks() {
+        loadingGroup.isVisible = true
+        recycler.isVisible = false
+        linearNothingFound.isVisible = false
+        linearNoInternet.isVisible = false
+        recyclerViewHistory.isVisible = false
+        itunesService.search(lastRequest)
             .enqueue(object : Callback<ItunesResponse> {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onResponse(
@@ -134,6 +157,7 @@ class SearchActivity : AppCompatActivity() {
                             recycler.visibility = View.GONE
                         }
                     }
+                    loadingGroup.isVisible = false
                     historySearchGroup.visibility = View.GONE
                 }
 
@@ -142,6 +166,7 @@ class SearchActivity : AppCompatActivity() {
                     linearNothingFound.visibility = View.GONE
                     recycler.visibility = View.GONE
                     historySearchGroup.visibility = View.GONE
+                    loadingGroup.isVisible = false
                 }
             })
     }
@@ -150,7 +175,7 @@ class SearchActivity : AppCompatActivity() {
     private fun addButtonListeners() {
         // Кнопка обновить запрос, когда нет сети
         updateButton.setOnClickListener {
-            search(lastRequest)
+            searchTracks()
         }
         // Кнопка назад
         returnItemImageView.setOnClickListener {
@@ -182,6 +207,8 @@ class SearchActivity : AppCompatActivity() {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                lastRequest = s.toString()
+                searchDebounce()
                 clearButton.isVisible = inputEditText.text.isNotEmpty()
                 recycler.isVisible = inputEditText.text.isNotEmpty()
                 linearNothingFound.isVisible = false
@@ -198,15 +225,6 @@ class SearchActivity : AppCompatActivity() {
 
             override fun afterTextChanged(p0: Editable?) {}
         })
-        // Реагирует на нажатие кнопки на клавиатуре и выполняет поиск
-        inputEditText.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                search(lastText = inputEditText.text.toString())
-                lastRequest = inputEditText.text.toString()
-                true
-            }
-            false
-        }
     }
 
     private fun findItems() {
@@ -220,6 +238,7 @@ class SearchActivity : AppCompatActivity() {
         historySearchGroup = findViewById(R.id.history_search_group)
         recycler = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerViewHistory = findViewById<RecyclerView>(R.id.recycler_view_history)
+        loadingGroup = findViewById(R.id.loadingGroup)
     }
 
     private fun recyclerSetting() {
