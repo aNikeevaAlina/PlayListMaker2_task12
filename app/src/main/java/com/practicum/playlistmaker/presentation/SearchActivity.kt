@@ -130,7 +130,7 @@ class SearchActivity : AppCompatActivity() {
         recycler.isVisible = false
         linearNothingFound.isVisible = false
         linearNoInternet.isVisible = false
-        recyclerViewHistory.isVisible = false
+        historySearchGroup.isVisible = false
         networkService.search(lastRequest, object : TrackSearchCallback {
             @SuppressLint("NotifyDataSetChanged")
             override fun onSuccess(result: List<Track>) {
@@ -196,7 +196,7 @@ class SearchActivity : AppCompatActivity() {
 
             override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 lastRequest = s.toString()
-                searchDebounce()
+                if (lastRequest.isNotEmpty()) searchDebounce()
                 clearButton.isVisible = inputEditText.text.isNotEmpty()
                 recycler.isVisible = inputEditText.text.isNotEmpty()
                 linearNothingFound.isVisible = false
