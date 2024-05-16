@@ -15,6 +15,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
+import com.practicum.playlistmaker2.R
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -80,11 +81,11 @@ class SearchActivity : AppCompatActivity() {
 
         inputSaveText = inputEditText.text.toString()
         historyAdapter.itemClickListener = { position, track ->
-            if (clickDebounce()) openPlayer(track.trackId)
+            if (clickDebounce()) openPlayer(track)
         }
         adapter.itemClickListener = { position, track ->
             searchHistory.add(track)
-            if (clickDebounce()) openPlayer(track.trackId)
+            if (clickDebounce()) openPlayer(track)
         }
     }
 
@@ -248,8 +249,8 @@ class SearchActivity : AppCompatActivity() {
         recyclerViewHistory.adapter = historyAdapter
     }
 
-    fun openPlayer(trackId: String) {
-        val intent = Intent(this, PlayerActivity::class.java).putExtra("track_id", trackId)
+    private fun openPlayer(track: Track) {
+        val intent = Intent(this, PlayerActivity::class.java).putExtra("track", track)
         startActivity(intent)
     }
 }
