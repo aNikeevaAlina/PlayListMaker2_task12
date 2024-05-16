@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -15,10 +15,11 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
+import com.practicum.playlistmaker.domain.SearchHistoryInteractor
+import com.practicum.playlistmaker.domain.SearchTrackInteractor
+import com.practicum.playlistmaker.domain.Track
+import com.practicum.playlistmaker.domain.TrackSearchCallback
 import com.practicum.playlistmaker2.R
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 class SearchActivity : AppCompatActivity() {
@@ -44,14 +45,14 @@ class SearchActivity : AppCompatActivity() {
     var inputSaveText: String = ""
     private var isClickAllowed = true
 
-    private val itunesService = ApiForItunes.retrofit.create(ApiForItunes::class.java)
+    private val networkService = SearchTrackInteractor()
 
     private var trackList = ArrayList<Track>()
     private var adapter = TrackAdapter()
     private val historyAdapter = TrackAdapter()
 
     private val sharedPrefs by lazy { getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE) }
-    private val searchHistory by lazy { SearchHistory(sharedPrefs) }
+    private val searchHistory by lazy { SearchHistoryInteractor(sharedPrefs) }
     private val handler = Handler(Looper.getMainLooper())
     private val searchRunnable = Runnable { searchTracks() }
 
@@ -115,7 +116,7 @@ class SearchActivity : AppCompatActivity() {
         handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
     }
 
-    private fun clickDebounce() : Boolean {
+    private fun clickDebounce(): Boolean {
         val current = isClickAllowed
         if (isClickAllowed) {
             isClickAllowed = false
@@ -130,46 +131,32 @@ class SearchActivity : AppCompatActivity() {
         linearNothingFound.isVisible = false
         linearNoInternet.isVisible = false
         recyclerViewHistory.isVisible = false
-        itunesService.search(lastRequest)
-            .enqueue(object : Callback<ItunesResponse> {
-                @SuppressLint("NotifyDataSetChanged")
-                override fun onResponse(
-                    call: Call<ItunesResponse>,
-                    response: Response<ItunesResponse>
-                ) {
-                    when (response.code()) {
-                        200 -> {
-                            if (response.body()?.results?.isNotEmpty() == true) {
-                                trackList.clear()
-                                trackList.addAll(response.body()?.results!!)
-                                adapter.notifyDataSetChanged()
-                                recycler.visibility = View.VISIBLE
-                                linearNothingFound.visibility = View.GONE
-                            } else {
-                                linearNothingFound.visibility = View.VISIBLE
-                                recycler.visibility = View.GONE
-                            }
-                            linearNoInternet.visibility = View.GONE
-                        }
-
-                        else -> {
-                            linearNoInternet.visibility = View.VISIBLE
-                            linearNothingFound.visibility = View.GONE
-                            recycler.visibility = View.GONE
-                        }
-                    }
-                    loadingGroup.isVisible = false
-                    historySearchGroup.visibility = View.GONE
-                }
-
-                override fun onFailure(call: Call<ItunesResponse>, t: Throwable) {
-                    linearNoInternet.visibility = View.VISIBLE
+        networkService.search(lastRequest, object : TrackSearchCallback {
+            @SuppressLint("NotifyDataSetChanged")
+            override fun onSuccess(result: List<Track>) {
+                if (result.isNotEmpty()) {
+                    trackList.clear()
+                    trackList.addAll(result)
+                    adapter.notifyDataSetChanged()
+                    recycler.visibility = View.VISIBLE
                     linearNothingFound.visibility = View.GONE
+                } else {
+                    linearNothingFound.visibility = View.VISIBLE
                     recycler.visibility = View.GONE
-                    historySearchGroup.visibility = View.GONE
-                    loadingGroup.isVisible = false
                 }
-            })
+                linearNoInternet.visibility = View.GONE
+                historySearchGroup.visibility = View.GONE
+                loadingGroup.isVisible = false
+            }
+
+            override fun onError(message: String) {
+                linearNoInternet.visibility = View.VISIBLE
+                linearNothingFound.visibility = View.GONE
+                recycler.visibility = View.GONE
+                historySearchGroup.visibility = View.GONE
+                loadingGroup.isVisible = false
+            }
+        })
     }
 
     @SuppressLint("RestrictedApi", "NotifyDataSetChanged")
