@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.domain
+package com.practicum.playlistmaker.search.domain
 
 interface SearchHistory {
 

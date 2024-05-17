@@ -1,7 +1,7 @@
-package com.practicum.playlistmaker.data
+package com.practicum.playlistmaker.search.data
 
-import com.practicum.playlistmaker.domain.NetworkService
-import com.practicum.playlistmaker.domain.TrackSearchCallback
+import com.practicum.playlistmaker.search.domain.NetworkService
+import com.practicum.playlistmaker.search.domain.TrackSearchCallback
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

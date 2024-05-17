@@ -1,6 +1,6 @@
-package com.practicum.playlistmaker.domain
+package com.practicum.playlistmaker.search.domain
 
-import com.practicum.playlistmaker.data.NetworkServiceImpl
+import com.practicum.playlistmaker.search.data.NetworkServiceImpl
 
 class SearchTrackInteractor {
 

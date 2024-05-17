@@ -1,7 +1,7 @@
-package com.practicum.playlistmaker.domain
+package com.practicum.playlistmaker.search.domain
 
 import android.content.SharedPreferences
-import com.practicum.playlistmaker.data.SearchHistoryImpl
+import com.practicum.playlistmaker.search.data.SearchHistoryImpl
 
 class SearchHistoryInteractor(sharedPreferences: SharedPreferences) {
 

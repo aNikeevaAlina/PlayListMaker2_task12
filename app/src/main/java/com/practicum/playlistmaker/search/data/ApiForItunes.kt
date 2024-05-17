@@ -1,4 +1,4 @@
-package com.practicum.playlistmaker.data
+package com.practicum.playlistmaker.search.data
 
 import retrofit2.Call
 import retrofit2.Retrofit

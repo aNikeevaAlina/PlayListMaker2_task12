@@ -1,12 +1,10 @@
-package com.practicum.playlistmaker.presentation
+package com.practicum.playlistmaker.search.presentation
 
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -16,10 +14,12 @@ import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
-import com.practicum.playlistmaker.domain.SearchHistoryInteractor
-import com.practicum.playlistmaker.domain.SearchTrackInteractor
-import com.practicum.playlistmaker.domain.Track
-import com.practicum.playlistmaker.domain.TrackSearchCallback
+import com.practicum.playlistmaker.search.domain.SearchHistoryInteractor
+import com.practicum.playlistmaker.search.domain.SearchTrackInteractor
+import com.practicum.playlistmaker.search.domain.Track
+import com.practicum.playlistmaker.search.domain.TrackSearchCallback
+import com.practicum.playlistmaker.player.presentation.PlayerActivity
+import com.practicum.playlistmaker.main.presentation.TrackAdapter
 import com.practicum.playlistmaker2.R
 
 
