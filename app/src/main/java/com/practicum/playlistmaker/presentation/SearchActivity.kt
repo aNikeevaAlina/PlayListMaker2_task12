@@ -12,6 +12,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
@@ -73,7 +74,7 @@ class SearchActivity : AppCompatActivity() {
             sharedPrefs.edit().clear().apply()
             historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
             historyAdapter.notifyDataSetChanged()
-            historySearchGroup.visibility = View.GONE
+            historySearchGroup.isVisible = false
         }
 
         adapter.trackList = trackList
@@ -138,22 +139,19 @@ class SearchActivity : AppCompatActivity() {
                     trackList.clear()
                     trackList.addAll(result)
                     adapter.notifyDataSetChanged()
-                    recycler.visibility = View.VISIBLE
-                    linearNothingFound.visibility = View.GONE
-                } else {
-                    linearNothingFound.visibility = View.VISIBLE
-                    recycler.visibility = View.GONE
                 }
-                linearNoInternet.visibility = View.GONE
-                historySearchGroup.visibility = View.GONE
+                linearNothingFound.isVisible = result.isEmpty()
+                recycler.isVisible = result.isNotEmpty()
+                linearNoInternet.isVisible = false
+                historySearchGroup.isVisible = false
                 loadingGroup.isVisible = false
             }
 
             override fun onError(message: String) {
-                linearNoInternet.visibility = View.VISIBLE
-                linearNothingFound.visibility = View.GONE
-                recycler.visibility = View.GONE
-                historySearchGroup.visibility = View.GONE
+                linearNoInternet.isVisible = true
+                linearNothingFound.isVisible = false
+                recycler.isVisible = false
+                historySearchGroup.isVisible = false
                 loadingGroup.isVisible = false
             }
         })
@@ -177,8 +175,8 @@ class SearchActivity : AppCompatActivity() {
             adapter.notifyDataSetChanged()
             historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
             historyAdapter.notifyDataSetChanged()
-            linearNothingFound.visibility = View.GONE
-            linearNoInternet.visibility = View.GONE
+            linearNothingFound.isVisible = false
+            linearNoInternet.isVisible = false
         }
     }
 
@@ -191,28 +189,22 @@ class SearchActivity : AppCompatActivity() {
         }
         // Реагирует на ввод текста в EditText
         inputEditText.requestFocus()
-        inputEditText.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-            override fun onTextChanged(s: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                lastRequest = s.toString()
-                if (lastRequest.isNotEmpty()) searchDebounce()
-                clearButton.isVisible = inputEditText.text.isNotEmpty()
-                recycler.isVisible = inputEditText.text.isNotEmpty()
-                linearNothingFound.isVisible = false
-                if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
-                    historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
-                    linearNoInternet.isVisible = false
-                    linearNothingFound.isVisible = false
-                } else {
-                    historySearchGroup.isVisible = false
-                    recycler.isVisible = true
-                }
-                inputSaveText = s.toString()
+        inputEditText.doOnTextChanged { text, start, before, count ->
+            lastRequest = text.toString()
+            if (lastRequest.isNotEmpty()) searchDebounce()
+            clearButton.isVisible = inputEditText.text.isNotEmpty()
+            recycler.isVisible = inputEditText.text.isNotEmpty()
+            linearNothingFound.isVisible = false
+            if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
+                historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
+                linearNoInternet.isVisible = false
+            } else {
+                historySearchGroup.isVisible = false
+                recycler.isVisible = true
             }
-
-            override fun afterTextChanged(p0: Editable?) {}
-        })
+            inputSaveText = text.toString()
+        }
     }
 
     private fun findItems() {
