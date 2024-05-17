@@ -6,26 +6,30 @@ import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker2.R
 
 
 class SettingsActivity : AppCompatActivity() {
+
+    private lateinit var viewModel: SettingsViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
-        themeSwitcher.setOnCheckedChangeListener { switcher, checked ->
-            (applicationContext as App).switchTheme(checked)
-        }
-        themeSwitcher.isChecked = (applicationContext as App).darkTheme
+        viewModel = ViewModelProvider(this, SettingsViewModel.getViewModelFactory())[SettingsViewModel::class.java]
 
-        //     val switchTheme = findViewById<Switch>(R.id.switch_theme)
-   //     switchTheme.setOnCheckedChangeListener { v, isChecked ->
-   //         AppCompatDelegate.setDefaultNightMode(if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
-   //     }
+        val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
+        themeSwitcher.setOnCheckedChangeListener { _, checked ->
+            viewModel.switchTheme(checked)
+        }
+
+        viewModel.nightModeState.observe(this) {
+            themeSwitcher.isChecked = it
+        }
 
         val shareTextView = findViewById<TextView>(R.id.share_app)
         shareTextView.setOnClickListener {
@@ -69,8 +73,5 @@ class SettingsActivity : AppCompatActivity() {
         backImageView.setOnClickListener {
             finish()
         }
-
-
     }
-
 }
