@@ -30,6 +30,10 @@ class SearchHistoryImpl (sharedPreferences: SharedPreferences): SearchHistory {
             .apply()
     }
 
+    override fun clear() {
+        sharedPrefs.edit().clear().apply()
+    }
+
     companion object {
         const val KEY_LIST_TRACKS = "tracks_history"
     }

@@ -6,4 +6,6 @@ interface SearchHistory {
 
     fun add(track: Track)
 
+    fun clear()
+
 }

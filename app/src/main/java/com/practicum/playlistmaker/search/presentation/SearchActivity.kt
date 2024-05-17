@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
@@ -43,64 +44,102 @@ class SearchActivity : AppCompatActivity() {
     private lateinit var loadingGroup: FrameLayout
 
     private var lastRequest: String = ""
-    var inputSaveText: String = ""
     private var isClickAllowed = true
 
-    private val networkService = SearchTrackInteractor()
-
-    private var trackList = ArrayList<Track>()
     private var adapter = TrackAdapter()
     private val historyAdapter = TrackAdapter()
 
-    private val sharedPrefs by lazy { getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE) }
-    private val searchHistory by lazy { SearchHistoryInteractor(sharedPrefs) }
     private val handler = Handler(Looper.getMainLooper())
-    private val searchRunnable = Runnable { searchTracks() }
+    private val searchRunnable = Runnable { viewModel.searchTracks(lastRequest) }
+    private lateinit var viewModel: SearchViewModel
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
 
+        viewModel = ViewModelProvider(this, SearchViewModel.getViewModelFactory())[SearchViewModel::class.java]
+
         findItems()
         recyclerSetting()
         addChangeListeners()
         addButtonListeners()
 
-        historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
-
         // Кнопка очищения истории поиска
         cleanHistoryButton.setOnClickListener {
-            sharedPrefs.edit().clear().apply()
-            historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
+            viewModel.clearHistory()
+        }
+
+        historyAdapter.itemClickListener = { _, track ->
+            if (clickDebounce()) openPlayer(track)
+        }
+        adapter.itemClickListener = { _, track ->
+            viewModel.addTrackToHistory(track)
+            if (clickDebounce()) openPlayer(track)
+        }
+
+        observeHistory()
+        observeSearchState()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeHistory() {
+        viewModel.historyState.observe(this) {
+            historySearchGroup.isVisible = it is HistoryUiState.NotEmpty && inputEditText.text.isNullOrEmpty()
+            when (it) {
+                HistoryUiState.Empty -> {
+                    historyAdapter.trackList = emptyList()
+                }
+                is HistoryUiState.NotEmpty -> {
+                    historyAdapter.trackList = it.tracks
+                }
+            }
             historyAdapter.notifyDataSetChanged()
-            historySearchGroup.isVisible = false
-        }
 
-        adapter.trackList = trackList
-        historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
-        historyAdapter.notifyDataSetChanged()
-
-        inputSaveText = inputEditText.text.toString()
-        historyAdapter.itemClickListener = { position, track ->
-            if (clickDebounce()) openPlayer(track)
         }
-        adapter.itemClickListener = { position, track ->
-            searchHistory.add(track)
-            if (clickDebounce()) openPlayer(track)
+    }
+
+    private fun observeSearchState() {
+        viewModel.searchState.observe(this) {
+            when (it) {
+                is SearchUiState.Error -> {
+                    linearNoInternet.isVisible = true
+                    linearNothingFound.isVisible = false
+                    recycler.isVisible = false
+                    historySearchGroup.isVisible = false
+                    loadingGroup.isVisible = false
+                }
+                SearchUiState.Loading -> {
+                    loadingGroup.isVisible = true
+                    recycler.isVisible = false
+                    linearNothingFound.isVisible = false
+                    linearNoInternet.isVisible = false
+                    historySearchGroup.isVisible = false
+                }
+                is SearchUiState.Success -> {
+                    if (it.tracks.isNotEmpty()) {
+                        adapter.trackList = it.tracks
+                        adapter.notifyDataSetChanged()
+                    }
+                    linearNothingFound.isVisible = it.tracks.isEmpty()
+                    recycler.isVisible = it.tracks.isNotEmpty()
+                    linearNoInternet.isVisible = false
+                    historySearchGroup.isVisible = false
+                    loadingGroup.isVisible = false
+                }
+            }
         }
     }
 
     companion object {
         const val PRODUCT_AMOUNT = "PRODUCT_AMOUNT"
-        const val HISTORY_SEARCH = "HISTORY_SEARCH"
         private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString(PRODUCT_AMOUNT, inputSaveText)
+        outState.putString(PRODUCT_AMOUNT, lastRequest)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -126,42 +165,11 @@ class SearchActivity : AppCompatActivity() {
         return current
     }
 
-    private fun searchTracks() {
-        loadingGroup.isVisible = true
-        recycler.isVisible = false
-        linearNothingFound.isVisible = false
-        linearNoInternet.isVisible = false
-        historySearchGroup.isVisible = false
-        networkService.search(lastRequest, object : TrackSearchCallback {
-            @SuppressLint("NotifyDataSetChanged")
-            override fun onSuccess(result: List<Track>) {
-                if (result.isNotEmpty()) {
-                    trackList.clear()
-                    trackList.addAll(result)
-                    adapter.notifyDataSetChanged()
-                }
-                linearNothingFound.isVisible = result.isEmpty()
-                recycler.isVisible = result.isNotEmpty()
-                linearNoInternet.isVisible = false
-                historySearchGroup.isVisible = false
-                loadingGroup.isVisible = false
-            }
-
-            override fun onError(message: String) {
-                linearNoInternet.isVisible = true
-                linearNothingFound.isVisible = false
-                recycler.isVisible = false
-                historySearchGroup.isVisible = false
-                loadingGroup.isVisible = false
-            }
-        })
-    }
-
     @SuppressLint("RestrictedApi", "NotifyDataSetChanged")
     private fun addButtonListeners() {
         // Кнопка обновить запрос, когда нет сети
         updateButton.setOnClickListener {
-            searchTracks()
+            viewModel.searchTracks(lastRequest)
         }
         // Кнопка назад
         returnItemImageView.setOnClickListener {
@@ -171,10 +179,6 @@ class SearchActivity : AppCompatActivity() {
         clearButton.setOnClickListener {
             inputEditText.setText("")
             hideKeyboard(currentFocus ?: View(this))
-            trackList.clear()
-            adapter.notifyDataSetChanged()
-            historyAdapter.trackList = searchHistory.get().toCollection(ArrayList())
-            historyAdapter.notifyDataSetChanged()
             linearNothingFound.isVisible = false
             linearNoInternet.isVisible = false
         }
@@ -182,9 +186,9 @@ class SearchActivity : AppCompatActivity() {
 
     private fun addChangeListeners() {
         // Реагирует на смену фокуса в EditText
-        inputEditText.setOnFocusChangeListener { view, hasFocus ->
-            if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
-                historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
+        inputEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus && inputEditText.text.isEmpty()) {
+                historySearchGroup.isVisible = viewModel.historyState.value is HistoryUiState.NotEmpty
             }
         }
         // Реагирует на ввод текста в EditText
@@ -197,27 +201,26 @@ class SearchActivity : AppCompatActivity() {
             recycler.isVisible = inputEditText.text.isNotEmpty()
             linearNothingFound.isVisible = false
             if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
-                historySearchGroup.isVisible = searchHistory.get().isNotEmpty()
+                historySearchGroup.isVisible = viewModel.historyState.value is HistoryUiState.NotEmpty
                 linearNoInternet.isVisible = false
             } else {
                 historySearchGroup.isVisible = false
                 recycler.isVisible = true
             }
-            inputSaveText = text.toString()
         }
     }
 
     private fun findItems() {
         linearNothingFound = findViewById(R.id.error_block_nothing_found)
         linearNoInternet = findViewById(R.id.error_block_setting)
-        clearButton = findViewById<Button>(R.id.exit)
+        clearButton = findViewById(R.id.exit)
         updateButton = findViewById(R.id.button_update)
-        returnItemImageView = findViewById<ImageView>(R.id.return_n)
+        returnItemImageView = findViewById(R.id.return_n)
         cleanHistoryButton = findViewById(R.id.clean_history_button)
         inputEditText = findViewById(R.id.search_content)
         historySearchGroup = findViewById(R.id.history_search_group)
-        recycler = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerViewHistory = findViewById<RecyclerView>(R.id.recycler_view_history)
+        recycler = findViewById(R.id.recyclerView)
+        recyclerViewHistory = findViewById(R.id.recycler_view_history)
         loadingGroup = findViewById(R.id.loadingGroup)
     }
 

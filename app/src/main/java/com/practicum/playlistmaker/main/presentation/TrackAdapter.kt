@@ -13,7 +13,7 @@ import kotlin.collections.ArrayList
 
 class TrackAdapter(): RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
 
-    var trackList = ArrayList<Track>()
+    var trackList: List<Track> = ArrayList<Track>()
     var itemClickListener: ((Int, Track) -> Unit)? = null
 
     class TrackViewHolder(item: ViewGroup ): RecyclerView.ViewHolder(
