@@ -1,25 +1,23 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.presentation
 
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.IntentCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import retrofit2.Call
-import retrofit2.Response
+import com.practicum.playlistmaker.domain.Track
+import com.practicum.playlistmaker2.R
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerActivity : AppCompatActivity() {
-
-    private val itunesService = ApiForItunes.retrofit.create(ApiForItunes::class.java)
+    
     private var playerState = STATE_DEFAULT
     private val playButton: ImageView by lazy { findViewById(R.id.play_button) }
     private val trackTimeTextView by lazy { findViewById<TextView>(R.id.track_time) }
@@ -35,11 +33,11 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
     }
-
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
-
+        
         val trackNameTextView = findViewById<TextView>(R.id.track_name)
         val musicianNameTextView = findViewById<TextView>(R.id.artist_name)
         val trackDurationTextView = findViewById<TextView>(R.id.track_duration_value)
@@ -47,58 +45,41 @@ class PlayerActivity : AppCompatActivity() {
         val trackReleaseYearTextView = findViewById<TextView>(R.id.track_release_year_value)
         val trackGenreTextView = findViewById<TextView>(R.id.track_genre_value)
         val trackCountryTextView = findViewById<TextView>(R.id.track_country_value)
-
-        val trackId = intent.getStringExtra("track_id") ?: ""
-
-        val searchTrackCallBack = object : retrofit2.Callback<ItunesResponse> {
-
-            override fun onResponse(
-                call: Call<ItunesResponse>,
-                response: Response<ItunesResponse>
-            ) {
-                if (response.isSuccessful) {
-
-                    val track = response.body()?.results?.first() ?: return
-                    trackNameTextView.text = track.trackName
-                    musicianNameTextView.text = track.artistName
-                    trackDurationTextView.text = track.timeFormat()
-                    albumTextView.text = track.collectionName
-                    trackReleaseYearTextView.text = track.releaseDate.take(4)
-                    trackGenreTextView.text = track.primaryGenreName
-                    trackCountryTextView.text = track.country
-                    preparePlayer(track.previewUrl)
-                    playButton.setOnClickListener {
-                        playbackControl()
-                    }
-
-                    Glide.with(this@PlayerActivity)
-                        .load(track.getCoverArtwork())
-                        .transform(
-                            CenterInside(),
-                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.margin_recycler_element))
-                        )
-                        .placeholder(R.drawable.ic_vector)
-                        .into(findViewById(R.id.track_poster))
-                }
-            }
-
-
-            override fun onFailure(call: Call<ItunesResponse>, t: Throwable) {}
-
+        
+        val track = IntentCompat.getParcelableExtra(intent, "track", Track::class.java) ?: return
+        
+        trackNameTextView.text = track.trackName
+        musicianNameTextView.text = track.artistName
+        trackDurationTextView.text = track.timeFormat()
+        albumTextView.text = track.collectionName
+        trackReleaseYearTextView.text = track.releaseDate.take(4)
+        trackGenreTextView.text = track.primaryGenreName
+        trackCountryTextView.text = track.country
+        preparePlayer(track.previewUrl)
+        playButton.setOnClickListener {
+            playbackControl()
         }
-
-        itunesService.search(trackId).enqueue(searchTrackCallBack)
-
+        
+        Glide.with(this@PlayerActivity)
+            .load(track.getCoverArtwork())
+            .transform(
+                CenterInside(),
+                RoundedCorners(resources.getDimensionPixelSize(R.dimen.margin_recycler_element))
+            )
+            .placeholder(R.drawable.ic_vector)
+            .into(findViewById(R.id.track_poster))
+        
+        
         findViewById<ImageView>(R.id.return_n).setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
     }
-
+    
     private fun getTimeString(time: Long): String {
         return SimpleDateFormat("mm:ss", Locale.getDefault())
             .format(time)
     }
-
+    
     private fun preparePlayer(url: String) {
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
@@ -114,44 +95,44 @@ class PlayerActivity : AppCompatActivity() {
             trackTimeTextView.text = getTimeString(0L)
         }
     }
-
+    
     private fun startPlayer() {
         mediaPlayer.start()
         playButton.setImageResource(R.drawable.ic_pause_button)
         handler.post(runnable)
         playerState = STATE_PLAYING
     }
-
+    
     private fun pausePlayer() {
         mediaPlayer.pause()
         playButton.setImageResource(R.drawable.ic_baseline_play_circle_24)
         playerState = STATE_PAUSED
         handler.removeCallbacks(runnable)
     }
-
+    
     private fun playbackControl() {
         when (playerState) {
             STATE_PLAYING -> {
                 pausePlayer()
             }
-
+            
             STATE_PREPARED, STATE_PAUSED -> {
                 startPlayer()
             }
         }
     }
-
+    
     override fun onPause() {
         super.onPause()
         pausePlayer()
     }
-
+    
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(runnable)
         mediaPlayer.release()
     }
-
+    
     companion object {
         private const val STATE_DEFAULT = 0
         private const val STATE_PREPARED = 1

@@ -1,11 +1,11 @@
-package com.practicum.playlistmaker
+package com.practicum.playlistmaker.data
 
-import android.app.Application
 import android.content.SharedPreferences
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
+import com.practicum.playlistmaker.domain.SearchHistory
+import com.practicum.playlistmaker.domain.Track
 
-class SearchHistory (sharedPreferences: SharedPreferences) {
+class SearchHistoryImpl (sharedPreferences: SharedPreferences): SearchHistory {
 
     private val sharedPrefs: SharedPreferences
 
@@ -13,12 +13,12 @@ class SearchHistory (sharedPreferences: SharedPreferences) {
         sharedPrefs = sharedPreferences
     }
 
-    fun get(): Array<Track>{
+    override fun get(): Array<Track>{
         val saveJson = sharedPrefs.getString(KEY_LIST_TRACKS, "[ ]")
         return Gson().fromJson(saveJson, Array<Track>::class.java)
     }
 
-    fun add(track: Track) {
+    override fun add(track: Track) {
         val listObjects = get().filter { it.trackId != track.trackId }.toMutableList()
         if ( listObjects.size >= 10 ) {
             listObjects.removeLast()
