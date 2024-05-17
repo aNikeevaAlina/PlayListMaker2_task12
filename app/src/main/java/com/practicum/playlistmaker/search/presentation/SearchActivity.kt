@@ -15,12 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
-import com.practicum.playlistmaker.search.domain.SearchHistoryInteractor
-import com.practicum.playlistmaker.search.domain.SearchTrackInteractor
-import com.practicum.playlistmaker.search.domain.Track
-import com.practicum.playlistmaker.search.domain.TrackSearchCallback
-import com.practicum.playlistmaker.player.presentation.PlayerActivity
 import com.practicum.playlistmaker.main.presentation.TrackAdapter
+import com.practicum.playlistmaker.player.presentation.PlayerActivity
+import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
 
 

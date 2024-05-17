@@ -4,12 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import com.google.android.material.switchmaterial.SwitchMaterial
 import com.practicum.playlistmaker.search.data.NetworkServiceImpl
 import com.practicum.playlistmaker.search.data.SearchHistoryImpl
-import com.practicum.playlistmaker.search.domain.SearchHistory
 import com.practicum.playlistmaker.search.domain.SearchInteractor
-import com.practicum.playlistmaker.search.presentation.SearchActivity
 import com.practicum.playlistmaker.settings.data.SettingsRepositoryImpl
 import com.practicum.playlistmaker.settings.domain.SettingsInteractor
 

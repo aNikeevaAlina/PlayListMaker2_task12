@@ -9,7 +9,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
-import kotlin.collections.ArrayList
 
 class TrackAdapter(): RecyclerView.Adapter<TrackAdapter.TrackViewHolder>() {
 
