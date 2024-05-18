@@ -27,7 +27,7 @@ class App : Application() {
         val networkService = NetworkServiceImpl()
         val searchHistory = SearchHistoryImpl(getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE))
         searchInteractor = SearchInteractor(networkService, searchHistory)
-        settingsInteractor = SettingsInteractor(settingsRepository)
+        settingsInteractor = SettingsInteractor(settingsRepository, this)
 
         switchTheme(settingsRepository.getCurrentNightModeState())
     }

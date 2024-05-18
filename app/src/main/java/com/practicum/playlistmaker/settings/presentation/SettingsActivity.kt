@@ -19,7 +19,10 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        viewModel = ViewModelProvider(this, SettingsViewModel.getViewModelFactory())[SettingsViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            SettingsViewModel.getViewModelFactory()
+        )[SettingsViewModel::class.java]
 
         val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
         themeSwitcher.setOnCheckedChangeListener { _, checked ->
@@ -32,40 +35,19 @@ class SettingsActivity : AppCompatActivity() {
 
         val shareTextView = findViewById<TextView>(R.id.share_app)
         shareTextView.setOnClickListener {
-            Intent().apply {
-                setAction(Intent.ACTION_SEND)
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    getString(R.string.url_course_android_dev)
-                )
-                setType("text/plain")
-                startActivity(this)
-            }
-
+            val intent = viewModel.getShareIntent()
+            startActivity(intent)
         }
         val supportTextView = findViewById<TextView>(R.id.support)
         supportTextView.setOnClickListener {
-            Intent(Intent.ACTION_SEND).apply {
-                type = "plain/text"
-                putExtra(Intent.EXTRA_EMAIL, arrayOf(getString(R.string.email_developer)))
-                putExtra(
-                    Intent.EXTRA_SUBJECT,
-                    getString(R.string.subjectForDevelopers)
-                )
-                putExtra(
-                    Intent.EXTRA_TEXT,
-                    getString(R.string.thanksForDevelopers)
-                )
-                startActivity(Intent.createChooser(this, ""))
-            }
+            val intent = viewModel.getSupportIntent()
+            startActivity(intent)
         }
 
         val agreeTextView = findViewById<TextView>(R.id.agree)
         agreeTextView.setOnClickListener {
-            Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse(getString(R.string.url_practicum_offer))
-                startActivity(this)
-            }
+            val intent = viewModel.getAgreementIntent()
+            startActivity(intent)
         }
 
         val backImageView = findViewById<ImageView>(R.id.back)
