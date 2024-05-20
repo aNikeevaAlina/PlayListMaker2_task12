@@ -1,7 +1,5 @@
 package com.practicum.playlistmaker.settings.presentation
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
@@ -35,19 +33,16 @@ class SettingsActivity : AppCompatActivity() {
 
         val shareTextView = findViewById<TextView>(R.id.share_app)
         shareTextView.setOnClickListener {
-            val intent = viewModel.getShareIntent()
-            startActivity(intent)
+            viewModel.shareApp()
         }
         val supportTextView = findViewById<TextView>(R.id.support)
         supportTextView.setOnClickListener {
-            val intent = viewModel.getSupportIntent()
-            startActivity(intent)
+            viewModel.getSupport()
         }
 
         val agreeTextView = findViewById<TextView>(R.id.agree)
         agreeTextView.setOnClickListener {
-            val intent = viewModel.getAgreementIntent()
-            startActivity(intent)
+            viewModel.agreement()
         }
 
         val backImageView = findViewById<ImageView>(R.id.back)

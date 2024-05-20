@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.practicum.playlistmaker.search.data.NetworkServiceImpl
 import com.practicum.playlistmaker.search.data.SearchHistoryImpl
 import com.practicum.playlistmaker.search.domain.SearchInteractor
+import com.practicum.playlistmaker.settings.data.ExternalNavigatorImpl
 import com.practicum.playlistmaker.settings.data.SettingsRepositoryImpl
 import com.practicum.playlistmaker.settings.domain.SettingsInteractor
 
@@ -24,10 +25,11 @@ class App : Application() {
         super.onCreate()
         val settingsPrefs = getSharedPreferences(SAVE_THEME, MODE_PRIVATE)
         val settingsRepository = SettingsRepositoryImpl(settingsPrefs, isDarkMode(this))
+        val externalNavigator = ExternalNavigatorImpl(this)
         val networkService = NetworkServiceImpl()
         val searchHistory = SearchHistoryImpl(getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE))
         searchInteractor = SearchInteractor(networkService, searchHistory)
-        settingsInteractor = SettingsInteractor(settingsRepository, this)
+        settingsInteractor = SettingsInteractor(settingsRepository, externalNavigator)
 
         switchTheme(settingsRepository.getCurrentNightModeState())
     }

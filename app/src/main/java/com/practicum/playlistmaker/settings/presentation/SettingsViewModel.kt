@@ -33,11 +33,11 @@ class SettingsViewModel(
         _nightModeState.value = darkThemeEnabled
     }
 
-    fun getShareIntent() = interactor.getShareAppIntent()
+    fun shareApp() = interactor.shareApp()
 
-    fun getSupportIntent() = interactor.getSupportIntent()
+    fun getSupport() = interactor.getSupport()
 
-    fun getAgreementIntent() = interactor.getAgreementIntent()
+    fun agreement() = interactor.agreement()
 
     companion object {
         fun getViewModelFactory(): ViewModelProvider.Factory =
