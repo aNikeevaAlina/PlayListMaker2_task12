@@ -1,9 +1,9 @@
-package com.practicum.playlistmaker.data
+package com.practicum.playlistmaker.search.data
 
 import android.content.SharedPreferences
 import com.google.gson.Gson
-import com.practicum.playlistmaker.domain.SearchHistory
-import com.practicum.playlistmaker.domain.Track
+import com.practicum.playlistmaker.search.domain.SearchHistory
+import com.practicum.playlistmaker.search.domain.Track
 
 class SearchHistoryImpl (sharedPreferences: SharedPreferences): SearchHistory {
 
@@ -28,6 +28,10 @@ class SearchHistoryImpl (sharedPreferences: SharedPreferences): SearchHistory {
         sharedPrefs.edit()
             .putString(KEY_LIST_TRACKS, json)
             .apply()
+    }
+
+    override fun clear() {
+        sharedPrefs.edit().clear().apply()
     }
 
     companion object {
