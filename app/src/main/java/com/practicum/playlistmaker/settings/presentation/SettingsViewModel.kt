@@ -4,9 +4,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.settings.domain.SettingsInteractor
 
 class SettingsViewModel(
@@ -39,20 +36,4 @@ class SettingsViewModel(
 
     fun agreement() = interactor.agreement()
 
-    companion object {
-        fun getViewModelFactory(): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(
-                    modelClass: Class<T>,
-                    extras: CreationExtras,
-                ): T {
-                    val application = checkNotNull(extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY])
-
-                    return SettingsViewModel(
-                        (application as App).provideSettingsInteractor()
-                    ) as T
-                }
-            }
-    }
 }

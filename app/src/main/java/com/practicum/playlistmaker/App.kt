@@ -1,40 +1,29 @@
 package com.practicum.playlistmaker
 
 import android.app.Application
-import android.content.Context
-import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatDelegate
-import com.practicum.playlistmaker.search.data.NetworkServiceImpl
-import com.practicum.playlistmaker.search.data.SearchHistoryImpl
-import com.practicum.playlistmaker.search.domain.SearchInteractor
-import com.practicum.playlistmaker.settings.data.ExternalNavigatorImpl
-import com.practicum.playlistmaker.settings.data.SettingsRepositoryImpl
-import com.practicum.playlistmaker.settings.domain.SettingsInteractor
+import com.practicum.playlistmaker.search.di.searchModule
+import com.practicum.playlistmaker.settings.di.settingsModule
+import com.practicum.playlistmaker.settings.domain.SettingsRepository
+import org.koin.android.ext.android.inject
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 class App : Application() {
 
-    private lateinit var searchInteractor: SearchInteractor
-    private lateinit var settingsInteractor: SettingsInteractor
-
-    private fun isDarkMode(context: Context): Boolean {
-        val darkModeFlag = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        return darkModeFlag == Configuration.UI_MODE_NIGHT_YES
-    }
-
     override fun onCreate() {
         super.onCreate()
-        val settingsPrefs = getSharedPreferences(SAVE_THEME, MODE_PRIVATE)
-        val settingsRepository = SettingsRepositoryImpl(settingsPrefs, isDarkMode(this))
-        val externalNavigator = ExternalNavigatorImpl(this)
-        val networkService = NetworkServiceImpl()
-        val searchHistory = SearchHistoryImpl(getSharedPreferences(HISTORY_SEARCH, MODE_PRIVATE))
-        searchInteractor = SearchInteractor(networkService, searchHistory)
-        settingsInteractor = SettingsInteractor(settingsRepository, externalNavigator)
+        startKoin {
+            androidContext(this@App)
+            modules(listOf(searchModule, settingsModule))
+        }
+
+        val settingsRepository: SettingsRepository by inject()
 
         switchTheme(settingsRepository.getCurrentNightModeState())
     }
 
-    fun switchTheme(darkThemeEnabled: Boolean) {
+    private fun switchTheme(darkThemeEnabled: Boolean) {
         AppCompatDelegate.setDefaultNightMode(
             if (darkThemeEnabled) {
                 AppCompatDelegate.MODE_NIGHT_YES
@@ -43,9 +32,6 @@ class App : Application() {
             }
         )
     }
-
-    fun provideSearchInteractor() = searchInteractor
-    fun provideSettingsInteractor() = settingsInteractor
 
     companion object {
         const val SAVE_THEME = "save_theme_file"
