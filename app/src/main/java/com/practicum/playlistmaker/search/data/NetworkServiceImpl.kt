@@ -6,9 +6,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class NetworkServiceImpl : NetworkService {
-
-    private val itunesApi = ApiForItunes.retrofit.create(ApiForItunes::class.java)
+class NetworkServiceImpl(private val itunesApi: ApiForItunes) : NetworkService {
 
     override fun search(text: String, callback: TrackSearchCallback) {
         itunesApi.search(text).enqueue(object : Callback<ItunesResponse> {

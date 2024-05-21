@@ -3,10 +3,6 @@ package com.practicum.playlistmaker.search.presentation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
-import androidx.lifecycle.viewmodel.CreationExtras
-import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.search.domain.SearchInteractor
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker.search.domain.TrackSearchCallback
@@ -49,22 +45,5 @@ class SearchViewModel(
     fun clearHistory() {
         interactor.clearHistory()
         _historyState.value = HistoryUiState.Empty
-    }
-
-    companion object {
-        fun getViewModelFactory(): ViewModelProvider.Factory =
-            object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(
-                    modelClass: Class<T>,
-                    extras: CreationExtras,
-                ): T {
-                    val application = checkNotNull(extras[APPLICATION_KEY])
-
-                    return SearchViewModel(
-                        (application as App).provideSearchInteractor()
-                    ) as T
-                }
-            }
     }
 }
