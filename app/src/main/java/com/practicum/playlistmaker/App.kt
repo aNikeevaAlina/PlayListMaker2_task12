@@ -2,6 +2,7 @@ package com.practicum.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
+import com.practicum.playlistmaker.media.di.mediaModule
 import com.practicum.playlistmaker.search.di.searchModule
 import com.practicum.playlistmaker.settings.di.settingsModule
 import com.practicum.playlistmaker.settings.domain.SettingsRepository
@@ -15,7 +16,7 @@ class App : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@App)
-            modules(listOf(searchModule, settingsModule))
+            modules(listOf(searchModule, settingsModule, mediaModule))
         }
 
         val settingsRepository: SettingsRepository by inject()
