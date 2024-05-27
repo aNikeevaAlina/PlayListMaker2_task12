@@ -7,10 +7,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
@@ -21,7 +21,7 @@ import com.practicum.playlistmaker2.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class SearchActivity : AppCompatActivity() {
+class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private lateinit var linearNothingFound: LinearLayout
     private lateinit var linearNoInternet: LinearLayout
@@ -50,12 +50,9 @@ class SearchActivity : AppCompatActivity() {
     private val searchRunnable = Runnable { viewModel.searchTracks(lastRequest) }
     private val viewModel: SearchViewModel by viewModel()
 
-    @SuppressLint("NotifyDataSetChanged")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_search)
-
-        findItems()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        findItems(view)
         recyclerSetting()
         addChangeListeners()
         addButtonListeners()
@@ -79,7 +76,7 @@ class SearchActivity : AppCompatActivity() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun observeHistory() {
-        viewModel.historyState.observe(this) {
+        viewModel.historyState.observe(viewLifecycleOwner) {
             historySearchGroup.isVisible = it is HistoryUiState.NotEmpty && inputEditText.text.isNullOrEmpty()
             when (it) {
                 HistoryUiState.Empty -> {
@@ -95,7 +92,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun observeSearchState() {
-        viewModel.searchState.observe(this) {
+        viewModel.searchState.observe(viewLifecycleOwner) {
             when (it) {
                 is SearchUiState.Error -> {
                     linearNoInternet.isVisible = true
@@ -137,12 +134,12 @@ class SearchActivity : AppCompatActivity() {
         outState.putString(PRODUCT_AMOUNT, lastRequest)
     }
 
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        val inputEditText = findViewById<EditText>(R.id.search_content)
-        val text = savedInstanceState.getString(PRODUCT_AMOUNT)
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        val inputEditText = view?.findViewById<EditText>(R.id.search_content)
+        val text = savedInstanceState?.getString(PRODUCT_AMOUNT)
         if (!text.isNullOrEmpty()) {
-            inputEditText.setText(text)
+            inputEditText?.setText(text)
         }
     }
 
@@ -166,14 +163,10 @@ class SearchActivity : AppCompatActivity() {
         updateButton.setOnClickListener {
             viewModel.searchTracks(lastRequest)
         }
-        // Кнопка назад
-        returnItemImageView.setOnClickListener {
-            finish()
-        }
         // Кнопка очистить поле ввода
         clearButton.setOnClickListener {
             inputEditText.setText("")
-            hideKeyboard(currentFocus ?: View(this))
+            hideKeyboard(requireActivity().currentFocus ?: View(requireContext()))
             linearNothingFound.isVisible = false
             linearNoInternet.isVisible = false
         }
@@ -205,29 +198,28 @@ class SearchActivity : AppCompatActivity() {
         }
     }
 
-    private fun findItems() {
-        linearNothingFound = findViewById(R.id.error_block_nothing_found)
-        linearNoInternet = findViewById(R.id.error_block_setting)
-        clearButton = findViewById(R.id.exit)
-        updateButton = findViewById(R.id.button_update)
-        returnItemImageView = findViewById(R.id.return_n)
-        cleanHistoryButton = findViewById(R.id.clean_history_button)
-        inputEditText = findViewById(R.id.search_content)
-        historySearchGroup = findViewById(R.id.history_search_group)
-        recycler = findViewById(R.id.recyclerView)
-        recyclerViewHistory = findViewById(R.id.recycler_view_history)
-        loadingGroup = findViewById(R.id.loadingGroup)
+    private fun findItems(view: View) {
+        linearNothingFound = view.findViewById(R.id.error_block_nothing_found)
+        linearNoInternet = view.findViewById(R.id.error_block_setting)
+        clearButton = view.findViewById(R.id.exit)
+        updateButton = view.findViewById(R.id.button_update)
+        returnItemImageView = view.findViewById(R.id.return_n)
+        cleanHistoryButton = view.findViewById(R.id.clean_history_button)
+        inputEditText = view.findViewById(R.id.search_content)
+        historySearchGroup = view.findViewById(R.id.history_search_group)
+        recycler = view.findViewById(R.id.recyclerView)
+        recyclerViewHistory = view.findViewById(R.id.recycler_view_history)
+        loadingGroup = view.findViewById(R.id.loadingGroup)
     }
 
     private fun recyclerSetting() {
-        recycler.layoutManager = LinearLayoutManager(this)
+        recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
-        recyclerViewHistory.layoutManager = LinearLayoutManager(this)
+        recyclerViewHistory.layoutManager = LinearLayoutManager(requireContext())
         recyclerViewHistory.adapter = historyAdapter
     }
 
     private fun openPlayer(track: Track) {
-        val intent = Intent(this, PlayerActivity::class.java).putExtra("track", track)
-        startActivity(intent)
+        // TODO:
     }
 }

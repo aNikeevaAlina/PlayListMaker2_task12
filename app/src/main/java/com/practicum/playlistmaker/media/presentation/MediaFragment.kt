@@ -1,23 +1,24 @@
 package com.practicum.playlistmaker.media.presentation
 
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.practicum.playlistmaker2.R
 
-class MediaActivity : AppCompatActivity() {
+class MediaFragment : Fragment(R.layout.fragment_media) {
 
     private lateinit var tabMediator: TabLayoutMediator
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_media)
-
-        val tabLayout = findViewById<TabLayout>(R.id.tabLayout)
-        val viewPager = findViewById<ViewPager2>(R.id.viewPager)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val tabLayout = view.findViewById<TabLayout>(R.id.tabLayout)
+        val viewPager = view.findViewById<ViewPager2>(R.id.viewPager)
         val adapter = MediaAdapter(this)
         viewPager.adapter = adapter
         tabMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
@@ -27,11 +28,6 @@ class MediaActivity : AppCompatActivity() {
             }
         }
         tabMediator.attach()
-
-        val backButton = findViewById<ImageView>(R.id.return_n)
-        backButton.setOnClickListener {
-            finish()
-        }
     }
 
     override fun onDestroy() {

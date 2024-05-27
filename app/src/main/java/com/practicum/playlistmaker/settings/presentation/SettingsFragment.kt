@@ -1,48 +1,41 @@
 package com.practicum.playlistmaker.settings.presentation
 
 import android.os.Bundle
-import android.widget.ImageView
+import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.practicum.playlistmaker2.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsFragment : Fragment(R.layout.fragment_settings) {
 
     private val viewModel: SettingsViewModel by viewModel()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_settings)
-
-        val themeSwitcher = findViewById<SwitchMaterial>(R.id.themeSwitcher)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val themeSwitcher = view.findViewById<SwitchMaterial>(R.id.themeSwitcher)
         themeSwitcher.setOnCheckedChangeListener { _, checked ->
             viewModel.switchTheme(checked)
         }
 
-        viewModel.nightModeState.observe(this) {
+        viewModel.nightModeState.observe(viewLifecycleOwner) {
             themeSwitcher.isChecked = it
         }
 
-        val shareTextView = findViewById<TextView>(R.id.share_app)
+        val shareTextView = view.findViewById<TextView>(R.id.share_app)
         shareTextView.setOnClickListener {
             viewModel.shareApp()
         }
-        val supportTextView = findViewById<TextView>(R.id.support)
+        val supportTextView = view.findViewById<TextView>(R.id.support)
         supportTextView.setOnClickListener {
             viewModel.getSupport()
         }
 
-        val agreeTextView = findViewById<TextView>(R.id.agree)
+        val agreeTextView = view.findViewById<TextView>(R.id.agree)
         agreeTextView.setOnClickListener {
             viewModel.agreement()
-        }
-
-        val backImageView = findViewById<ImageView>(R.id.back)
-        backImageView.setOnClickListener {
-            finish()
         }
     }
 }
