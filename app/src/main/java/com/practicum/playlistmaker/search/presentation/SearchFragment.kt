@@ -1,7 +1,6 @@
 package com.practicum.playlistmaker.search.presentation
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,7 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
 import com.practicum.playlistmaker.main.presentation.TrackAdapter
-import com.practicum.playlistmaker.player.presentation.PlayerActivity
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
 import org.koin.androidx.viewmodel.ext.android.viewModel
