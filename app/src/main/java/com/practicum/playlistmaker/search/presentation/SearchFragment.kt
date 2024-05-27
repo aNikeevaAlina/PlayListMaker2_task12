@@ -7,9 +7,11 @@ import android.os.Looper
 import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
@@ -32,8 +34,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     private lateinit var recycler: RecyclerView
     private lateinit var recyclerViewHistory: RecyclerView
-
-    private lateinit var returnItemImageView: ImageView
 
     private lateinit var inputEditText: EditText
     private lateinit var loadingGroup: FrameLayout
@@ -201,7 +201,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         linearNoInternet = view.findViewById(R.id.error_block_setting)
         clearButton = view.findViewById(R.id.exit)
         updateButton = view.findViewById(R.id.button_update)
-        returnItemImageView = view.findViewById(R.id.return_n)
         cleanHistoryButton = view.findViewById(R.id.clean_history_button)
         inputEditText = view.findViewById(R.id.search_content)
         historySearchGroup = view.findViewById(R.id.history_search_group)
@@ -218,6 +217,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
 
     private fun openPlayer(track: Track) {
-        // TODO:
+        findNavController().navigate(R.id.playerFragment, bundleOf("track" to track))
     }
 }
