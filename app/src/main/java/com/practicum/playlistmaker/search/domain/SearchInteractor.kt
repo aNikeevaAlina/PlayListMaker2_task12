@@ -1,17 +1,12 @@
 package com.practicum.playlistmaker.search.domain
 
-class SearchInteractor(
-    private val networkService: NetworkService,
-    private val searchHistory: SearchHistory
-) {
+interface SearchInteractor {
 
-    fun searchTracks(query:String, callback: TrackSearchCallback) {
-        networkService.search(query, callback)
-    }
+    fun searchTracks(query: String, callback: TrackSearchCallback)
 
-    fun getHistory() = searchHistory.get()
+    fun getHistory(): Array<Track>
 
-    fun addTrackToHistory(track: Track) = searchHistory.add(track)
+    fun addTrackToHistory(track: Track)
 
-    fun clearHistory() = searchHistory.clear()
+    fun clearHistory()
 }

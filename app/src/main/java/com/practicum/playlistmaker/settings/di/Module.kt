@@ -6,6 +6,7 @@ import com.practicum.playlistmaker.settings.data.ExternalNavigatorImpl
 import com.practicum.playlistmaker.settings.data.SettingsRepositoryImpl
 import com.practicum.playlistmaker.settings.domain.ExternalNavigator
 import com.practicum.playlistmaker.settings.domain.SettingsInteractor
+import com.practicum.playlistmaker.settings.domain.SettingsInteractorImpl
 import com.practicum.playlistmaker.settings.domain.SettingsRepository
 import com.practicum.playlistmaker.settings.presentation.SettingsViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -15,7 +16,7 @@ import org.koin.dsl.module
 val settingsModule = module {
     viewModelOf(::SettingsViewModel)
 
-    factory { SettingsInteractor(get(), get()) }
+    factory<SettingsInteractor> { SettingsInteractorImpl(get(), get()) }
 
     single<SettingsRepository> {
         SettingsRepositoryImpl(

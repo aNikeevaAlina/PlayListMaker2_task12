@@ -1,17 +1,14 @@
 package com.practicum.playlistmaker.settings.domain
 
-class SettingsInteractor(
-    private val settingsRepository: SettingsRepository,
-    private val externalNavigator: ExternalNavigator
-) {
+interface SettingsInteractor {
 
-    fun getCurrentNightModeState() = settingsRepository.getCurrentNightModeState()
+    fun getCurrentNightModeState(): Boolean
 
-    fun setNightMode(isNight: Boolean) = settingsRepository.setNightMode(isNight)
+    fun setNightMode(isNight: Boolean)
 
-    fun shareApp() = externalNavigator.shareApp()
+    fun shareApp()
 
-    fun getSupport() = externalNavigator.getSupport()
+    fun getSupport()
 
-    fun agreement() = externalNavigator.openAgreement()
+    fun agreement()
 }
