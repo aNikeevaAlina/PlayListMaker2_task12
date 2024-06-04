@@ -6,30 +6,15 @@
     android:background="?attr/colorPrimaryVariant"
     android:orientation="vertical">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingBottom="20dp">
-
-        <ImageView
-            android:id="@+id/return_n"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:src="@drawable/ic_arrow"
-            app:iconGravity="textStart" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="64dp"
-            android:layout_marginTop="14dp"
-            android:fontFamily="@font/ys_display_regular"
-            android:text="@string/media"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="@dimen/text_size" />
-    </FrameLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_marginStart="16dp"
+        android:gravity="center"
+        android:fontFamily="@font/ys_display_regular"
+        android:text="@string/media"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="@dimen/text_size" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"

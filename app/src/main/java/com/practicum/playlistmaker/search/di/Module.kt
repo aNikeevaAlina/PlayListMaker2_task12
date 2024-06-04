@@ -8,6 +8,7 @@ import com.practicum.playlistmaker.search.data.SearchHistoryImpl
 import com.practicum.playlistmaker.search.domain.NetworkService
 import com.practicum.playlistmaker.search.domain.SearchHistory
 import com.practicum.playlistmaker.search.domain.SearchInteractor
+import com.practicum.playlistmaker.search.domain.SearchInteractorImpl
 import com.practicum.playlistmaker.search.presentation.SearchViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -18,7 +19,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 val searchModule = module {
     viewModelOf(::SearchViewModel)
 
-    factory { SearchInteractor(get(), get()) }
+    factory<SearchInteractor> { SearchInteractorImpl(get(), get()) }
 
     factory<NetworkService> { NetworkServiceImpl(get()) }
 

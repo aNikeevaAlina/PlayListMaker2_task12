@@ -4,10 +4,11 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.IntentCompat
+import androidx.core.os.BundleCompat
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
@@ -16,11 +17,11 @@ import com.practicum.playlistmaker2.R
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class PlayerActivity : AppCompatActivity() {
+class PlayerFragment : Fragment(R.layout.fragment_player) {
     
     private var playerState = STATE_DEFAULT
-    private val playButton: ImageView by lazy { findViewById(R.id.play_button) }
-    private val trackTimeTextView by lazy { findViewById<TextView>(R.id.track_time) }
+    private lateinit var playButton: ImageView
+    private lateinit var trackTimeTextView : TextView
     private val mediaPlayer = MediaPlayer()
     private val handler = Handler(Looper.getMainLooper())
     private var counter = 0L
@@ -33,21 +34,21 @@ class PlayerActivity : AppCompatActivity() {
             }
         }
     }
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_player)
-        
-        val trackNameTextView = findViewById<TextView>(R.id.track_name)
-        val musicianNameTextView = findViewById<TextView>(R.id.artist_name)
-        val trackDurationTextView = findViewById<TextView>(R.id.track_duration_value)
-        val albumTextView = findViewById<TextView>(R.id.album_value)
-        val trackReleaseYearTextView = findViewById<TextView>(R.id.track_release_year_value)
-        val trackGenreTextView = findViewById<TextView>(R.id.track_genre_value)
-        val trackCountryTextView = findViewById<TextView>(R.id.track_country_value)
-        
-        val track = IntentCompat.getParcelableExtra(intent, "track", Track::class.java) ?: return
-        
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        playButton = view. findViewById(R.id.play_button)
+        trackTimeTextView = view.findViewById(R.id.track_time)
+        val trackNameTextView = view.findViewById<TextView>(R.id.track_name)
+        val musicianNameTextView = view.findViewById<TextView>(R.id.artist_name)
+        val trackDurationTextView = view.findViewById<TextView>(R.id.track_duration_value)
+        val albumTextView = view.findViewById<TextView>(R.id.album_value)
+        val trackReleaseYearTextView = view.findViewById<TextView>(R.id.track_release_year_value)
+        val trackGenreTextView = view.findViewById<TextView>(R.id.track_genre_value)
+        val trackCountryTextView = view.findViewById<TextView>(R.id.track_country_value)
+
+        val track = arguments?.let { BundleCompat.getParcelable(it, "track", Track::class.java) } ?: return
+
         trackNameTextView.text = track.trackName
         musicianNameTextView.text = track.artistName
         trackDurationTextView.text = track.timeFormat()
@@ -59,19 +60,19 @@ class PlayerActivity : AppCompatActivity() {
         playButton.setOnClickListener {
             playbackControl()
         }
-        
-        Glide.with(this@PlayerActivity)
+
+        Glide.with(this@PlayerFragment)
             .load(track.getCoverArtwork())
             .transform(
                 CenterInside(),
                 RoundedCorners(resources.getDimensionPixelSize(R.dimen.margin_recycler_element))
             )
             .placeholder(R.drawable.ic_vector)
-            .into(findViewById(R.id.track_poster))
-        
-        
-        findViewById<ImageView>(R.id.return_n).setOnClickListener {
-            onBackPressedDispatcher.onBackPressed()
+            .into(view.findViewById(R.id.track_poster))
+
+
+        view.findViewById<ImageView>(R.id.return_n).setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
     
