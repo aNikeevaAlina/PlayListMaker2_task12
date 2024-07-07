@@ -2,8 +2,6 @@ package com.practicum.playlistmaker.search.presentation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -11,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +17,9 @@ import com.google.android.material.internal.ViewUtils.hideKeyboard
 import com.practicum.playlistmaker.main.presentation.TrackAdapter
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -44,9 +46,9 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     private var adapter = TrackAdapter()
     private val historyAdapter = TrackAdapter()
 
-    private val handler = Handler(Looper.getMainLooper())
-    private val searchRunnable = Runnable { viewModel.searchTracks(lastRequest) }
     private val viewModel: SearchViewModel by viewModel()
+
+    private var clickDebounceJob: Job? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -123,7 +125,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     companion object {
         const val PRODUCT_AMOUNT = "PRODUCT_AMOUNT"
-        private const val SEARCH_DEBOUNCE_DELAY = 2000L
         private const val CLICK_DEBOUNCE_DELAY = 1000L
     }
 
@@ -141,16 +142,15 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
     }
 
-    private fun searchDebounce() {
-        handler.removeCallbacks(searchRunnable)
-        handler.postDelayed(searchRunnable, SEARCH_DEBOUNCE_DELAY)
-    }
-
     private fun clickDebounce(): Boolean {
         val current = isClickAllowed
         if (isClickAllowed) {
             isClickAllowed = false
-            handler.postDelayed({ isClickAllowed = true }, CLICK_DEBOUNCE_DELAY)
+            clickDebounceJob?.cancel()
+            clickDebounceJob = lifecycleScope.launch {
+                delay(CLICK_DEBOUNCE_DELAY)
+                isClickAllowed = true
+            }
         }
         return current
     }
@@ -182,7 +182,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
         inputEditText.doOnTextChanged { text, start, before, count ->
             lastRequest = text.toString()
-            if (lastRequest.isNotEmpty()) searchDebounce()
+            if (lastRequest.isNotEmpty()) viewModel.searchDebounce(lastRequest)
             clearButton.isVisible = inputEditText.text.isNotEmpty()
             recycler.isVisible = inputEditText.text.isNotEmpty()
             linearNothingFound.isVisible = false
