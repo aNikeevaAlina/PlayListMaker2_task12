@@ -1,6 +1,8 @@
 package com.practicum.playlistmaker.search.domain
 
+import kotlinx.coroutines.flow.Flow
+
 interface NetworkService {
 
-    suspend fun search(text: String): List<Track>
+    fun search(text: String): Flow<List<Track>>
 }

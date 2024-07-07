@@ -6,11 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.search.domain.SearchInteractor
 import com.practicum.playlistmaker.search.domain.Track
-import com.practicum.playlistmaker.search.domain.TrackSearchCallback
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import java.lang.Exception
 
 class SearchViewModel(
     private val interactor: SearchInteractor
@@ -45,12 +44,9 @@ class SearchViewModel(
         if (query.isEmpty()) return
         _searchState.value = SearchUiState.Loading
         viewModelScope.launch {
-            try {
-                val tracks = interactor.searchTracks(query)
-                _searchState.value = SearchUiState.Success(tracks)
-            } catch (e: Exception) {
-                _searchState.value = SearchUiState.Error(e.message.orEmpty())
-            }
+            interactor.searchTracks(query)
+                .catch { _searchState.value = SearchUiState.Error(it.message.orEmpty()) }
+                .collect { _searchState.value = SearchUiState.Success(it) }
         }
     }
 

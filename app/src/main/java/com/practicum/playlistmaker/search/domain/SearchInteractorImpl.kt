@@ -1,11 +1,13 @@
 package com.practicum.playlistmaker.search.domain
 
+import kotlinx.coroutines.flow.Flow
+
 class SearchInteractorImpl(
     private val networkService: NetworkService,
     private val searchHistory: SearchHistory
 ): SearchInteractor {
 
-    override suspend fun searchTracks(query:String): List<Track> {
+    override fun searchTracks(query:String): Flow< List<Track>> {
         return networkService.search(query)
     }
 

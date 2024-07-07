@@ -39,6 +39,6 @@ class PlayerViewModel: ViewModel() {
     fun stopCount() = trackTimeJob?.cancel()
 
     companion object {
-        private const val TIME_UPDATE_DELAY = 1000L
+        private const val TIME_UPDATE_DELAY = 300L
     }
 }
