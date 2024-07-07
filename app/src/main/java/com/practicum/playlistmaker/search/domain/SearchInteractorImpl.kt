@@ -5,8 +5,8 @@ class SearchInteractorImpl(
     private val searchHistory: SearchHistory
 ): SearchInteractor {
 
-    override fun searchTracks(query:String, callback: TrackSearchCallback) {
-        networkService.search(query, callback)
+    override suspend fun searchTracks(query:String): List<Track> {
+        return networkService.search(query)
     }
 
     override fun getHistory() = searchHistory.get()

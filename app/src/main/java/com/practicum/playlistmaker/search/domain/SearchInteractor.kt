@@ -2,7 +2,7 @@ package com.practicum.playlistmaker.search.domain
 
 interface SearchInteractor {
 
-    fun searchTracks(query: String, callback: TrackSearchCallback)
+    suspend fun searchTracks(query: String): List<Track>
 
     fun getHistory(): Array<Track>
 

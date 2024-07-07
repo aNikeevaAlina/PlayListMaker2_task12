@@ -10,6 +10,7 @@ import com.practicum.playlistmaker.search.domain.TrackSearchCallback
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 class SearchViewModel(
     private val interactor: SearchInteractor
@@ -43,15 +44,14 @@ class SearchViewModel(
     fun searchTracks(query: String) {
         if (query.isEmpty()) return
         _searchState.value = SearchUiState.Loading
-        interactor.searchTracks(query, object : TrackSearchCallback {
-            override fun onSuccess(result: List<Track>) {
-                _searchState.value = SearchUiState.Success(result)
+        viewModelScope.launch {
+            try {
+                val tracks = interactor.searchTracks(query)
+                _searchState.value = SearchUiState.Success(tracks)
+            } catch (e: Exception) {
+                _searchState.value = SearchUiState.Error(e.message.orEmpty())
             }
-
-            override fun onError(message: String) {
-                _searchState.value = SearchUiState.Error(message)
-            }
-        })
+        }
     }
 
     fun addTrackToHistory(track: Track) {
