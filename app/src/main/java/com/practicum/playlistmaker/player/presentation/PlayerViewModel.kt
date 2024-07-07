@@ -3,7 +3,7 @@ package com.practicum.playlistmaker.player.presentation
 import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.practicum.playlistmaker.player.presentation.model.PlayerState
+import com.practicum.playlistmaker.player.presentation.model.PlayerScreenState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +15,7 @@ import java.util.Locale
 
 class PlayerViewModel: ViewModel() {
 
-    private val _playerStateFlow = MutableStateFlow<PlayerState>(PlayerState.Initial)
+    private val _playerStateFlow = MutableStateFlow<PlayerScreenState>(PlayerScreenState.TrackTime.Initial)
      val playerStateFlow = _playerStateFlow.asStateFlow()
 
     private val formatter = SimpleDateFormat("mm:ss", Locale.getDefault())
@@ -27,9 +27,13 @@ class PlayerViewModel: ViewModel() {
         trackTimeJob = viewModelScope.launch {
             while (isActive) {
                 delay(TIME_UPDATE_DELAY)
-                _playerStateFlow.value = PlayerState.InProgress(formatter.format(mediaPlayer.currentPosition))
+                _playerStateFlow.value = PlayerScreenState.TrackTime.InProgress(formatter.format(mediaPlayer.currentPosition))
             }
         }
+    }
+
+    fun resetTrackTime() {
+        _playerStateFlow.value = PlayerScreenState.TrackTime.Initial
     }
 
     fun stopCount() = trackTimeJob?.cancel()

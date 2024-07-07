@@ -2,8 +2,6 @@ package com.practicum.playlistmaker.player.presentation
 
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -15,14 +13,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
-import com.practicum.playlistmaker.player.presentation.model.PlayerState
+import com.practicum.playlistmaker.player.presentation.model.PlayerScreenState
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class PlayerFragment : Fragment(R.layout.fragment_player) {
     
@@ -76,8 +71,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.playerStateFlow.collect {
                     when (it) {
-                        is PlayerState.InProgress -> trackTimeTextView.text = it.currentTime
-                        PlayerState.Initial -> Unit
+                        is PlayerScreenState.TrackTime -> trackTimeTextView.text = it.currentTime
                     }
                 }
             }
@@ -94,6 +88,8 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         mediaPlayer.setOnCompletionListener {
             playButton.setImageResource(R.drawable.ic_baseline_play_circle_24)
             playerState = STATE_PREPARED
+            viewModel.stopCount()
+            viewModel.resetTrackTime()
         }
     }
     
