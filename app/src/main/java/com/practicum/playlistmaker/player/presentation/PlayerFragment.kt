@@ -9,11 +9,18 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.os.BundleCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.practicum.playlistmaker.player.presentation.model.PlayerState
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -23,17 +30,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
     private lateinit var playButton: ImageView
     private lateinit var trackTimeTextView : TextView
     private val mediaPlayer = MediaPlayer()
-    private val handler = Handler(Looper.getMainLooper())
-    private var counter = 0L
-    private val runnable = object : Runnable {
-        override fun run() {
-            if (playerState == STATE_PLAYING) {
-                trackTimeTextView.text = getTimeString(counter)
-                counter += TIME_UPDATE_DELAY
-                handler.postDelayed(this, TIME_UPDATE_DELAY)
-            }
-        }
-    }
+    private val viewModel by viewModel<PlayerViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,11 +71,17 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         view.findViewById<ImageView>(R.id.return_n).setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
-    }
-    
-    private fun getTimeString(time: Long): String {
-        return SimpleDateFormat("mm:ss", Locale.getDefault())
-            .format(time)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.playerStateFlow.collect {
+                    when (it) {
+                        is PlayerState.InProgress -> trackTimeTextView.text = it.currentTime
+                        PlayerState.Initial -> Unit
+                    }
+                }
+            }
+        }
     }
     
     private fun preparePlayer(url: String) {
@@ -91,24 +94,21 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         mediaPlayer.setOnCompletionListener {
             playButton.setImageResource(R.drawable.ic_baseline_play_circle_24)
             playerState = STATE_PREPARED
-            handler.removeCallbacks(runnable)
-            counter = 0L
-            trackTimeTextView.text = getTimeString(0L)
         }
     }
     
     private fun startPlayer() {
         mediaPlayer.start()
         playButton.setImageResource(R.drawable.ic_pause_button)
-        handler.post(runnable)
+        viewModel.startCount(mediaPlayer)
         playerState = STATE_PLAYING
     }
     
     private fun pausePlayer() {
         mediaPlayer.pause()
+        viewModel.stopCount()
         playButton.setImageResource(R.drawable.ic_baseline_play_circle_24)
         playerState = STATE_PAUSED
-        handler.removeCallbacks(runnable)
     }
     
     private fun playbackControl() {
@@ -130,7 +130,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
     
     override fun onDestroy() {
         super.onDestroy()
-        handler.removeCallbacks(runnable)
+        viewModel.stopCount()
         mediaPlayer.release()
     }
     
@@ -139,6 +139,5 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         private const val STATE_PREPARED = 1
         private const val STATE_PLAYING = 2
         private const val STATE_PAUSED = 3
-        private const val TIME_UPDATE_DELAY = 1000L
     }
 }
