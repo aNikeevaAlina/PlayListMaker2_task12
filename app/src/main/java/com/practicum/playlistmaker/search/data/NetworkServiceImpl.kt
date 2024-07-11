@@ -1,27 +1,21 @@
 package com.practicum.playlistmaker.search.data
 
+import com.practicum.playlistmaker.search.data.model.TrackSearchException
 import com.practicum.playlistmaker.search.domain.NetworkService
-import com.practicum.playlistmaker.search.domain.TrackSearchCallback
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.practicum.playlistmaker.search.domain.Track
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 class NetworkServiceImpl(private val itunesApi: ApiForItunes) : NetworkService {
 
-    override fun search(text: String, callback: TrackSearchCallback) {
-        itunesApi.search(text).enqueue(object : Callback<ItunesResponse> {
-            override fun onResponse(
-                call: Call<ItunesResponse>,
-                response: Response<ItunesResponse>
-            ) {
-                val result = response.body()
-                if (result == null) callback.onError("Something went wrong")
-                else callback.onSuccess(result.results)
-            }
-
-            override fun onFailure(call: Call<ItunesResponse>, t: Throwable) {
-                callback.onError(t.message ?: "Something went wrong")
-            }
-        })
+    override fun search(text: String): Flow<List<Track>> = flow {
+        val response = itunesApi.search(text)
+        val body = response.body()
+        if (response.isSuccessful) {
+            if (body != null) emit(body.results)
+            else throw TrackSearchException("The data is null")
+        } else {
+            throw TrackSearchException()
+        }
     }
 }
