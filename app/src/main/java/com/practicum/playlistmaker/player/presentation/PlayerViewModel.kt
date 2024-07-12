@@ -3,7 +3,7 @@ package com.practicum.playlistmaker.player.presentation
 import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.practicum.playlistmaker.favorite.domain.FavoriteTracksRepository
+import com.practicum.playlistmaker.player.domain.PlayerInteractor
 import com.practicum.playlistmaker.player.presentation.model.PlayerScreenState
 import com.practicum.playlistmaker.search.domain.Track
 import kotlinx.coroutines.Job
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class PlayerViewModel(
-    private val favoriteTracksRepository: FavoriteTracksRepository
+    private val playerInteractor: PlayerInteractor
 ): ViewModel() {
 
     private val _playerStateFlow = MutableStateFlow<PlayerScreenState>(PlayerScreenState.TrackTime.Initial)
@@ -32,7 +32,7 @@ class PlayerViewModel(
 
     fun setTrack(track: Track) {
         viewModelScope.launch {
-            val isTrackFavorite = favoriteTracksRepository.getAllFavoriteTracksIds().contains(track.trackId)
+            val isTrackFavorite = playerInteractor.getAllFavoriteTracksIds().contains(track.trackId)
             _trackStateFlow.value = track.copy(isFavorite = isTrackFavorite)
         }
     }
@@ -41,10 +41,10 @@ class PlayerViewModel(
         val currentTrack = _trackStateFlow.value ?: return
         viewModelScope.launch {
             if (currentTrack.isFavorite) {
-                favoriteTracksRepository.removeTrackFromFavoritesById(currentTrack.trackId)
+                playerInteractor.removeTrackFromFavoritesById(currentTrack.trackId)
                 _trackStateFlow.value = currentTrack.copy(isFavorite = false)
             } else {
-                favoriteTracksRepository.addTrackToFavorite(currentTrack)
+                playerInteractor.addTrackToFavorite(currentTrack)
                 _trackStateFlow.value = currentTrack.copy(isFavorite = true)
             }
         }
