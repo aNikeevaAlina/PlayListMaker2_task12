@@ -23,4 +23,8 @@ class FavoriteTracksRepositoryImpl(
         return dao.getTracksFlow()
             .map { list -> list.map { favoriteTrackMapper.mapFromEntity(it) } }
     }
+
+    override suspend fun getAllFavoriteTracksIds(): List<String> {
+        return dao.getFavoriteTracksIds()
+    }
 }

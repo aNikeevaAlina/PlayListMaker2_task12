@@ -31,7 +31,10 @@ class PlayerViewModel(
     private var trackTimeJob: Job? = null
 
     fun setTrack(track: Track) {
-        _trackStateFlow.value = track
+        viewModelScope.launch {
+            val isTrackFavorite = favoriteTracksRepository.getAllFavoriteTracksIds().contains(track.trackId)
+            _trackStateFlow.value = track.copy(isFavorite = isTrackFavorite)
+        }
     }
 
     fun onFavoriteClicked() {

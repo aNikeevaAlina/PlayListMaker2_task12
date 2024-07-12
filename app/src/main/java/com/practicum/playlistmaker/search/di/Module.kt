@@ -5,10 +5,12 @@ import com.practicum.playlistmaker.App
 import com.practicum.playlistmaker.search.data.ApiForItunes
 import com.practicum.playlistmaker.search.data.NetworkServiceImpl
 import com.practicum.playlistmaker.search.data.SearchHistoryImpl
-import com.practicum.playlistmaker.search.domain.NetworkService
+import com.practicum.playlistmaker.search.data.NetworkService
+import com.practicum.playlistmaker.search.data.SearchTracksRepositoryImpl
 import com.practicum.playlistmaker.search.domain.SearchHistory
 import com.practicum.playlistmaker.search.domain.SearchInteractor
 import com.practicum.playlistmaker.search.domain.SearchInteractorImpl
+import com.practicum.playlistmaker.search.domain.SearchTracksRepository
 import com.practicum.playlistmaker.search.presentation.SearchViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -40,4 +42,6 @@ val searchModule = module {
             )
         )
     }
+
+    single<SearchTracksRepository> { SearchTracksRepositoryImpl(get(), get()) }
 }
