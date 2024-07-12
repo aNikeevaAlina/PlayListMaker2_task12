@@ -20,16 +20,16 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlayerFragment : Fragment(R.layout.fragment_player) {
-    
+
     private var playerState = STATE_DEFAULT
     private lateinit var playButton: ImageView
-    private lateinit var trackTimeTextView : TextView
+    private lateinit var trackTimeTextView: TextView
     private val mediaPlayer = MediaPlayer()
     private val viewModel by viewModel<PlayerViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        playButton = view. findViewById(R.id.play_button)
+        playButton = view.findViewById(R.id.play_button)
         trackTimeTextView = view.findViewById(R.id.track_time)
         val trackNameTextView = view.findViewById<TextView>(R.id.track_name)
         val musicianNameTextView = view.findViewById<TextView>(R.id.artist_name)
@@ -38,30 +38,47 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         val trackReleaseYearTextView = view.findViewById<TextView>(R.id.track_release_year_value)
         val trackGenreTextView = view.findViewById<TextView>(R.id.track_genre_value)
         val trackCountryTextView = view.findViewById<TextView>(R.id.track_country_value)
+        val favoriteButton = view.findViewById<ImageView>(R.id.add_favourite_song)
 
-        val track = arguments?.let { BundleCompat.getParcelable(it, "track", Track::class.java) } ?: return
+        val track =
+            arguments?.let { BundleCompat.getParcelable(it, "track", Track::class.java) } ?: return
+        viewModel.setTrack(track)
 
-        trackNameTextView.text = track.trackName
-        musicianNameTextView.text = track.artistName
-        trackDurationTextView.text = track.timeFormat()
-        albumTextView.text = track.collectionName
-        trackReleaseYearTextView.text = track.releaseDate.take(4)
-        trackGenreTextView.text = track.primaryGenreName
-        trackCountryTextView.text = track.country
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.trackStateFlow.collect { track ->
+                    trackNameTextView.text = track.trackName
+                    musicianNameTextView.text = track.artistName
+                    trackDurationTextView.text = track.timeFormat()
+                    albumTextView.text = track.collectionName
+                    trackReleaseYearTextView.text = track.releaseDate.take(4)
+                    trackGenreTextView.text = track.primaryGenreName
+                    trackCountryTextView.text = track.country
+                    favoriteButton.setImageResource(
+                        if (track.isFavorite) R.drawable.favorite_button
+                        else R.drawable.not_favorite_button
+                    )
+
+                    Glide.with(this@PlayerFragment)
+                        .load(track.getCoverArtwork())
+                        .transform(
+                            CenterInside(),
+                            RoundedCorners(resources.getDimensionPixelSize(R.dimen.margin_recycler_element))
+                        )
+                        .placeholder(R.drawable.ic_vector)
+                        .into(view.findViewById(R.id.track_poster))
+                }
+            }
+        }
+
+        favoriteButton.setOnClickListener {
+            viewModel.onFavoriteClicked()
+        }
+
         preparePlayer(track.previewUrl)
         playButton.setOnClickListener {
             playbackControl()
         }
-
-        Glide.with(this@PlayerFragment)
-            .load(track.getCoverArtwork())
-            .transform(
-                CenterInside(),
-                RoundedCorners(resources.getDimensionPixelSize(R.dimen.margin_recycler_element))
-            )
-            .placeholder(R.drawable.ic_vector)
-            .into(view.findViewById(R.id.track_poster))
-
 
         view.findViewById<ImageView>(R.id.return_n).setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
@@ -77,7 +94,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
             }
         }
     }
-    
+
     private fun preparePlayer(url: String) {
         mediaPlayer.setDataSource(url)
         mediaPlayer.prepareAsync()
@@ -92,44 +109,44 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
             viewModel.resetTrackTime()
         }
     }
-    
+
     private fun startPlayer() {
         mediaPlayer.start()
         playButton.setImageResource(R.drawable.ic_pause_button)
         viewModel.startCount(mediaPlayer)
         playerState = STATE_PLAYING
     }
-    
+
     private fun pausePlayer() {
         mediaPlayer.pause()
         viewModel.stopCount()
         playButton.setImageResource(R.drawable.ic_baseline_play_circle_24)
         playerState = STATE_PAUSED
     }
-    
+
     private fun playbackControl() {
         when (playerState) {
             STATE_PLAYING -> {
                 pausePlayer()
             }
-            
+
             STATE_PREPARED, STATE_PAUSED -> {
                 startPlayer()
             }
         }
     }
-    
+
     override fun onPause() {
         super.onPause()
         pausePlayer()
     }
-    
+
     override fun onDestroy() {
         super.onDestroy()
         viewModel.stopCount()
         mediaPlayer.release()
     }
-    
+
     companion object {
         private const val STATE_DEFAULT = 0
         private const val STATE_PREPARED = 1
