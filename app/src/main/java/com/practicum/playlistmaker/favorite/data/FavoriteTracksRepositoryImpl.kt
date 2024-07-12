@@ -22,6 +22,7 @@ class FavoriteTracksRepositoryImpl(
     override fun getFavoriteTracksFlow(): Flow<List<Track>> {
         return dao.getTracksFlow()
             .map { list -> list.map { favoriteTrackMapper.mapFromEntity(it) } }
+            .map { it.reversed() }
     }
 
     override suspend fun getAllFavoriteTracksIds(): List<String> {
