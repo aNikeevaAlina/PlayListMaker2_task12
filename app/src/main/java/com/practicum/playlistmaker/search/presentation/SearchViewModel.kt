@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.search.presentation
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -32,8 +33,9 @@ class SearchViewModel(
 
     fun searchDebounce(text: String) {
         if (lastSearchedText == text) return
-        lastSearchedText = text
         searchDebounceJob?.cancel()
+        lastSearchedText = text
+        if (text.isBlank()) return
         searchDebounceJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_DELAY)
             searchTracks(text)

@@ -2,6 +2,7 @@ package com.practicum.playlistmaker.search.presentation
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -175,6 +176,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         inputEditText.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus && inputEditText.text.isEmpty()) {
                 historySearchGroup.isVisible = viewModel.historyState.value is HistoryUiState.NotEmpty
+                recycler.isVisible = false
+
             }
         }
         // Реагирует на ввод текста в EditText
@@ -182,12 +185,13 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
         inputEditText.doOnTextChanged { text, start, before, count ->
             lastRequest = text.toString()
-            if (lastRequest.isNotEmpty()) viewModel.searchDebounce(lastRequest)
+            viewModel.searchDebounce(lastRequest)
             clearButton.isVisible = inputEditText.text.isNotEmpty()
             recycler.isVisible = inputEditText.text.isNotEmpty()
             linearNothingFound.isVisible = false
             if (inputEditText.hasFocus() && inputEditText.text.isEmpty()) {
                 historySearchGroup.isVisible = viewModel.historyState.value is HistoryUiState.NotEmpty
+                recycler.isVisible = false
                 linearNoInternet.isVisible = false
             } else {
                 historySearchGroup.isVisible = false
