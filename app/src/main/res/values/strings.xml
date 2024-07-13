@@ -32,4 +32,8 @@
     <string name="description">Описание</string>
     <string name="create">Создать</string>
     <string name="needed_permission">Нужно разрешение</string>
+    <string name="fully_create_playlist">Завершить создание плэйлиста?</string>
+    <string name="unsaved_information_deleted">Все несохраненные данные будут потеряны</string>
+    <string name="cancel">Отмена</string>
+    <string name="complete">Завершить</string>
 </resources>

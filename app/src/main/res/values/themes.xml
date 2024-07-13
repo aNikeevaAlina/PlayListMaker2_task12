@@ -14,5 +14,6 @@
         <!-- Customize your theme here. -->
         <item name="colorAccent">@color/grey</item>
         <item name="color">@color/grey</item>
+        <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
     </style>
 </resources>

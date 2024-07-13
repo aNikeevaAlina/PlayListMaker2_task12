@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -19,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.practicum.playlistmaker2.R
 import com.practicum.playlistmaker2.databinding.FragmentCreatePlaylistBinding
 
@@ -69,9 +71,18 @@ class CreatePlaylistFragment: Fragment() {
             binding.createPlaylistButton.isEnabled = !text.isNullOrBlank()
         }
 
-        binding.returnN.setOnClickListener { findNavController().popBackStack() }
+        binding.returnN.setOnClickListener { onBackPressed() }
 
         binding.playlistCover.setOnClickListener { checkPermissions() }
+
+        activity?.onBackPressedDispatcher?.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    onBackPressed()
+                }
+            }
+        )
     }
 
     private fun checkPermissions() {
@@ -101,6 +112,19 @@ class CreatePlaylistFragment: Fragment() {
             requireContext(),
             permission
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun onBackPressed() {
+        if (binding.editText.text.isNullOrBlank() && binding.descriptionEditText.text.isNullOrBlank() && !isImageChosen) {
+            findNavController().popBackStack()
+        } else {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(getString(R.string.fully_create_playlist))
+                .setMessage(getString(R.string.unsaved_information_deleted))
+                .setNegativeButton(getString(R.string.cancel)) { _, _ -> }
+                .setPositiveButton(getString(R.string.complete)) { _, _ -> findNavController().popBackStack() }
+                .show()
+        }
     }
 
     override fun onDestroyView() {
