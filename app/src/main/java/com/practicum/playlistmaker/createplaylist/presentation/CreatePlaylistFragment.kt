@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -88,9 +89,10 @@ class CreatePlaylistFragment : Fragment() {
 
         binding.createPlaylistButton.setOnClickListener {
             val playlistName = binding.editText.text.toString()
+            val description = binding.descriptionEditText.text?.toString()
             viewModel.createPlaylist(
                 playlistName,
-                binding.descriptionEditText.text?.toString(),
+                if (description.isNullOrBlank()) null else description,
                 imageUri
             )
             Toast.makeText(
