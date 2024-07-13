@@ -64,5 +64,11 @@
     <style name="BottomNavStyle">
         <item name="android:background">@color/white</item>
     </style>
-
+    <style name="CreatePlaylistEditTextStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColor">@color/black_2</item>
+        <item name="android:textColorHint">@color/black_2</item>
+        <item name="boxStrokeColor">@color/input_layout_colors</item>
+        <item name="strokeColor">@color/blue</item>
+        <item name="hintTextColor">@color/blue</item>
+    </style>
 </resources>
