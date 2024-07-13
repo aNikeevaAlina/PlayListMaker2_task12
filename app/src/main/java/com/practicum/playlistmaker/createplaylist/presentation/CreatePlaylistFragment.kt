@@ -23,13 +23,15 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.practicum.playlistmaker2.R
 import com.practicum.playlistmaker2.databinding.FragmentCreatePlaylistBinding
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CreatePlaylistFragment: Fragment() {
+class CreatePlaylistFragment : Fragment() {
 
     private var _binding: FragmentCreatePlaylistBinding? = null
     private val binding get() = _binding!!
-    private var imageUri = Uri.EMPTY
+    private var imageUri: Uri? = null
     private var isImageChosen = false
+    private val viewModel: CreatePlaylistViewModel by viewModel()
 
     private val permissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -83,6 +85,21 @@ class CreatePlaylistFragment: Fragment() {
                 }
             }
         )
+
+        binding.createPlaylistButton.setOnClickListener {
+            val playlistName = binding.editText.text.toString()
+            viewModel.createPlaylist(
+                playlistName,
+                binding.descriptionEditText.text?.toString(),
+                imageUri
+            )
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.playlist_created, playlistName),
+                Toast.LENGTH_LONG
+            ).show()
+            findNavController().popBackStack()
+        }
     }
 
     private fun checkPermissions() {
