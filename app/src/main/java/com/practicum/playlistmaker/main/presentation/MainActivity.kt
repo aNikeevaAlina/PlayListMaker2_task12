@@ -2,6 +2,7 @@ package com.practicum.playlistmaker.main.presentation
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -18,6 +19,7 @@ import com.practicum.playlistmaker2.R
 class MainActivity : AppCompatActivity() {
 
     private val bottomNavigation by lazy { findViewById<BottomNavigationView>(R.id.bottomNavigation) }
+    private val separatorView by lazy { findViewById<View>(R.id.separator) }
 
     private lateinit var navController: NavController
 
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val destinationListener =
         NavController.OnDestinationChangedListener { _, destination, _ ->
             bottomNavigation.isVisible = destination.id !in fragmentsWithoutBottomNav
+            separatorView.isVisible = destination.id !in fragmentsWithoutBottomNav
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

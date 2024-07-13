@@ -1,5 +1,6 @@
-package com.practicum.playlistmaker.search.domain
+package com.practicum.playlistmaker.search.data
 
+import com.practicum.playlistmaker.search.domain.Track
 import kotlinx.coroutines.flow.Flow
 
 interface NetworkService {

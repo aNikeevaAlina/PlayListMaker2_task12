@@ -122,7 +122,7 @@
         android:id="@+id/add_favourite_song"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/add_favourite_song"
+        android:src="@drawable/not_favorite_button"
         app:layout_constraintBottom_toBottomOf="@+id/play_button"
         app:layout_constraintEnd_toEndOf="@id/right_guideLine_24"
         app:layout_constraintTop_toTopOf="@+id/play_button" />
