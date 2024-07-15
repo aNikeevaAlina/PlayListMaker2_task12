@@ -15,5 +15,6 @@
         <item name="colorAccent">@color/grey</item>
         <item name="color">@color/grey</item>
         <item name="materialAlertDialogTheme">@style/AlertDialogTheme</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
     </style>
 </resources>
