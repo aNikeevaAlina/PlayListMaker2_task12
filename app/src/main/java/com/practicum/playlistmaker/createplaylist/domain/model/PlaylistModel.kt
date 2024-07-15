@@ -5,5 +5,6 @@ data class PlaylistModel(
     val name: String,
     val description: String? = null,
     val cover: String? = null,
-    val trackList: List<String> = emptyList()
+    val trackList: List<String> = emptyList(),
+    val count: Int = trackList.size
 )
