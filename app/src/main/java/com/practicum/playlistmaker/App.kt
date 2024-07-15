@@ -2,6 +2,7 @@ package com.practicum.playlistmaker
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
+import com.practicum.playlistmaker.addToPlaylist.di.playlistSmallModule
 import com.practicum.playlistmaker.createplaylist.di.createPlaylistModule
 import com.practicum.playlistmaker.favorite.di.favoriteTracksModule
 import com.practicum.playlistmaker.media.di.mediaModule
@@ -26,7 +27,8 @@ class App : Application() {
                     mediaModule,
                     playerModule,
                     favoriteTracksModule,
-                    createPlaylistModule
+                    createPlaylistModule,
+                    playlistSmallModule
                 )
             )
         }

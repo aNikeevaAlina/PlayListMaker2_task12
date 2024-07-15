@@ -6,6 +6,7 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.core.net.toUri
 import com.practicum.playlistmaker.createplaylist.domain.model.PlaylistModel
+import com.practicum.playlistmaker.search.domain.Track
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -39,5 +40,13 @@ class PlaylistInteractorImpl(
 
     override fun getPlaylistsFlow(): Flow<List<PlaylistModel>> {
         return playlistRepository.getPlaylistsFlow()
+    }
+
+    override suspend fun getAllPlaylists(): List<PlaylistModel> {
+        return playlistRepository.getAllPlaylists()
+    }
+
+    override suspend fun addTrackToPlaylist(track: Track, playlistId: Int) {
+        playlistRepository.addTrackToPlaylist(track, playlistId)
     }
 }

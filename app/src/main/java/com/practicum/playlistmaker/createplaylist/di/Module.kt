@@ -18,7 +18,7 @@ val createPlaylistModule = module {
 
     factory { PlaylistInteractorImpl(androidApplication(), get()) } bind PlaylistInteractor::class
 
-    single { PlaylistRepositoryImpl(get(), get()) } bind PlaylistRepository::class
+    single { PlaylistRepositoryImpl(get(), get(), get(), get()) } bind PlaylistRepository::class
 
     factory { PlaylistMapper() }
 
