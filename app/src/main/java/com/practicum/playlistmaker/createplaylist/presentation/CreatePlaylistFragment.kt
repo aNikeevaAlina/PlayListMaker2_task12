@@ -26,13 +26,13 @@ import com.practicum.playlistmaker2.R
 import com.practicum.playlistmaker2.databinding.FragmentCreatePlaylistBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class CreatePlaylistFragment : Fragment() {
+open class CreatePlaylistFragment : Fragment() {
 
     private var _binding: FragmentCreatePlaylistBinding? = null
-    private val binding get() = _binding!!
-    private var imageUri: Uri? = null
+    protected val binding get() = _binding!!
+    protected var imageUri: Uri? = null
     private var isImageChosen = false
-    private val viewModel: CreatePlaylistViewModel by viewModel()
+    protected open val viewModel: CreatePlaylistViewModel by viewModel()
 
     private val permissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
@@ -88,20 +88,24 @@ class CreatePlaylistFragment : Fragment() {
         )
 
         binding.createPlaylistButton.setOnClickListener {
-            val playlistName = binding.editText.text.toString()
-            val description = binding.descriptionEditText.text?.toString()
-            viewModel.createPlaylist(
-                playlistName,
-                if (description.isNullOrBlank()) null else description,
-                imageUri
-            )
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.playlist_created, playlistName),
-                Toast.LENGTH_LONG
-            ).show()
-            findNavController().popBackStack()
+            onMainButtonPressed()
         }
+    }
+
+    protected open fun onMainButtonPressed() {
+        val playlistName = binding.editText.text.toString()
+        val description = binding.descriptionEditText.text?.toString()
+        viewModel.createPlaylist(
+            playlistName,
+            if (description.isNullOrBlank()) null else description,
+            imageUri
+        )
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.playlist_created, playlistName),
+            Toast.LENGTH_LONG
+        ).show()
+        findNavController().popBackStack()
     }
 
     private fun checkPermissions() {
@@ -133,7 +137,7 @@ class CreatePlaylistFragment : Fragment() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    private fun onBackPressed() {
+    protected open fun onBackPressed() {
         if (binding.editText.text.isNullOrBlank() && binding.descriptionEditText.text.isNullOrBlank() && !isImageChosen) {
             findNavController().popBackStack()
         } else {

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.practicum.playlistmaker.createplaylist.domain.PlaylistInteractor
 import kotlinx.coroutines.launch
 
-class CreatePlaylistViewModel(
+open class CreatePlaylistViewModel(
     private val playlistInteractor: PlaylistInteractor
 ) : ViewModel() {
 

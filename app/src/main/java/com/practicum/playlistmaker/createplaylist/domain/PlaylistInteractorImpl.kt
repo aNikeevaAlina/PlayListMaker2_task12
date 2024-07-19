@@ -26,6 +26,21 @@ class PlaylistInteractorImpl(
         )
     }
 
+    override suspend fun updatePlaylist(
+        playlist: DetailedPlaylistModel,
+        name: String,
+        description: String?,
+        cover: Uri?
+    ) {
+        playlistRepository.addPlaylist(
+            playlist.toSimpleModel().copy(
+                name = name,
+                description = description,
+                cover = cover.toString()
+            )
+        )
+    }
+
     private fun saveToInternal(uri: Uri, fileName: String): Uri {
         val source = ImageDecoder.createSource(context.contentResolver, uri)
         val bitmap = ImageDecoder.decodeBitmap(source)

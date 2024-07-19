@@ -10,6 +10,13 @@ interface PlaylistInteractor {
 
     suspend fun addPlaylist(name: String, description: String? = null, cover: Uri? = null)
 
+    suspend fun updatePlaylist(
+        playlist: DetailedPlaylistModel,
+        name: String,
+        description: String? = null,
+        cover: Uri? = null
+    )
+
     fun getPlaylistsFlow(): Flow<List<PlaylistModel>>
 
     suspend fun getAllPlaylists(): List<PlaylistModel>

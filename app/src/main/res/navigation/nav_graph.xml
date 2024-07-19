@@ -27,4 +27,8 @@
     <fragment
         android:id="@+id/playlistFragment"
         android:name="com.practicum.playlistmaker.playlist.presentation.PlaylistFragment" />
+
+    <fragment
+        android:id="@+id/editPlaylistFragment"
+        android:name="com.practicum.playlistmaker.editPlaylist.presentation.EditPlaylistFragment" />
 </navigation>

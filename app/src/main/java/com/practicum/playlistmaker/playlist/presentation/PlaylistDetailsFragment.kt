@@ -87,7 +87,7 @@ class PlaylistDetailsFragment : BottomSheetDialogFragment() {
         }
         binding.editPlaylistButton.setOnClickListener {
             dismiss()
-//            findNavController().navigate(R.id.editPlaylistFragment, bundleOf(ARGS_KEY to playlist))
+            findNavController().navigate(R.id.editPlaylistFragment, bundleOf(ARGS_KEY to playlist))
         }
         binding.deletePlaylistButton.setOnClickListener {
             MaterialAlertDialogBuilder(requireContext())
