@@ -57,6 +57,7 @@ class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
     }
 
     companion object {
+        const val PLAYLIST_ID_KEY = "playlist_id"
         fun newInstance(): PlaylistsFragment {
             return PlaylistsFragment()
         }

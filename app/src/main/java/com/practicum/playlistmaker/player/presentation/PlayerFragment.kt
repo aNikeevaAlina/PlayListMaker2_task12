@@ -43,7 +43,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         val addToPlaylistButton = view.findViewById<ImageView>(R.id.add_song_button)
 
         val track =
-            arguments?.let { BundleCompat.getParcelable(it, "track", Track::class.java) } ?: return
+            arguments?.let { BundleCompat.getParcelable(it, TRACK_KEY, Track::class.java) } ?: return
         viewModel.setTrack(track)
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -156,6 +156,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
     }
 
     companion object {
+        const val TRACK_KEY = "track"
         private const val STATE_DEFAULT = 0
         private const val STATE_PREPARED = 1
         private const val STATE_PLAYING = 2
