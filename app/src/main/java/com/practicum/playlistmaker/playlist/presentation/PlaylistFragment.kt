@@ -1,11 +1,13 @@
 package com.practicum.playlistmaker.playlist.presentation
 
 import android.content.res.Resources
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.view.WindowInsets
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.StringRes
@@ -36,7 +38,7 @@ class PlaylistFragment : Fragment() {
     private var behavior: BottomSheetBehavior<LinearLayout>? = null
     private val screenHeight by lazy { Resources.getSystem().displayMetrics.heightPixels }
     private val layoutListener = OnGlobalLayoutListener {
-        behavior?.peekHeight = screenHeight - binding.topView.height
+        behavior?.peekHeight = screenHeight - binding.topView.height - getStatusBarHeight() / 2
     }
 
     override fun onCreateView(
@@ -138,5 +140,11 @@ class PlaylistFragment : Fragment() {
 
     private fun showToast(@StringRes message: Int) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    }
+
+    fun getStatusBarHeight(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) resources.getDimensionPixelSize(resourceId)
+        else Rect().apply { requireActivity().window.decorView.getWindowVisibleDisplayFrame(this) }.top
     }
 }

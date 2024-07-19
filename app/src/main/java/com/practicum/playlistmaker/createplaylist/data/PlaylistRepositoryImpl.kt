@@ -1,5 +1,6 @@
 package com.practicum.playlistmaker.createplaylist.data
 
+import android.util.Log
 import com.practicum.playlistmaker.addToPlaylist.data.PlaylistTrackDao
 import com.practicum.playlistmaker.addToPlaylist.data.PlaylistTrackMapper
 import com.practicum.playlistmaker.createplaylist.data.db.PlaylistDao
@@ -40,7 +41,7 @@ class PlaylistRepositoryImpl(
     }
 
     override fun getPlaylistById(id: Int): Flow<DetailedPlaylistModel> {
-        val playlistFlow = playlistDao.getPlaylistById(id)
+        val playlistFlow = playlistDao.getPlaylistFlow(id)
         val tracksFlow = playlistTrackDao.getAllTracks()
         return playlistFlow
             .filterNotNull()
@@ -59,11 +60,14 @@ class PlaylistRepositoryImpl(
     }
 
     override suspend fun deleteTrackFromPlaylist(trackId: String, playlistId: Int) {
-        val trackList = playlistDao.getTrackListForPlaylist(playlistId).toMutableList()
+        val trackList = playlistDao.getPlaylistById(playlistId).trackList.toMutableList()
+        Log.d("QQQ", "trackList $trackList, trackId $trackId")
         trackList.remove(trackId)
+        Log.d("QQQ", "trackList $trackList, trackId $trackId")
         playlistDao.updateTrackList(playlistId, trackList)
         val playlists = playlistDao.getAllPlaylists()
         val isUsed =checkIsTrackUsed(trackId, playlists)
+        Log.d("QQQ", "isUsed $isUsed")
         if (!isUsed) playlistTrackDao.deleteTrack(trackId)
     }
 
