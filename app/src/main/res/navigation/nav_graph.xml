@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@id/mediaFragment"
-    android:id="@+id/nav_graph">
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mediaFragment">
 
     <fragment
         android:id="@+id/searchFragment"
@@ -22,6 +22,9 @@
 
     <fragment
         android:id="@+id/createPlaylistFragment"
-        android:name="com.practicum.playlistmaker.createplaylist.presentation.CreatePlaylistFragment"/>
+        android:name="com.practicum.playlistmaker.createplaylist.presentation.CreatePlaylistFragment" />
 
+    <fragment
+        android:id="@+id/playlistFragment"
+        android:name="com.practicum.playlistmaker.playlist.presentation.PlaylistFragment" />
 </navigation>

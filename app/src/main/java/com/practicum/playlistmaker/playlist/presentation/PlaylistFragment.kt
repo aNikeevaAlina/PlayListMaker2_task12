@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.core.os.bundleOf
+import androidx.core.view.setPadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -56,7 +57,7 @@ class PlaylistFragment : Fragment() {
         trackAdapter.itemClickListener = { _, track ->
             findNavController().navigate(
                 R.id.playerFragment,
-                bundleOf(PlayerFragment.TRACK_KEY to track.trackId)
+                bundleOf(PlayerFragment.TRACK_KEY to track)
             )
         }
         trackAdapter.onLongClickListener = { _, track ->
@@ -81,6 +82,7 @@ class PlaylistFragment : Fragment() {
                         View.GONE
                     binding.playlistName.text = it.name
                     binding.playlistDescription.text = it.description
+                    binding.playlistCover.setPadding(0)
                     Glide.with(this@PlaylistFragment)
                         .load(it.cover)
                         .centerCrop()
