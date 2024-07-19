@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterInside
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.practicum.playlistmaker.addToPlaylist.presentation.AddToPlaylistFragment
 import com.practicum.playlistmaker.player.presentation.model.PlayerScreenState
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
@@ -39,6 +40,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         val trackGenreTextView = view.findViewById<TextView>(R.id.track_genre_value)
         val trackCountryTextView = view.findViewById<TextView>(R.id.track_country_value)
         val favoriteButton = view.findViewById<ImageView>(R.id.add_favourite_song)
+        val addToPlaylistButton = view.findViewById<ImageView>(R.id.add_song_button)
 
         val track =
             arguments?.let { BundleCompat.getParcelable(it, "track", Track::class.java) } ?: return
@@ -82,6 +84,12 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
 
         view.findViewById<ImageView>(R.id.return_n).setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
+
+        addToPlaylistButton.setOnClickListener {
+            AddToPlaylistFragment
+                .newInstance(track)
+                .show(parentFragmentManager, null)
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
