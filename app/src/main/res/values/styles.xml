@@ -91,10 +91,22 @@
     <style name="BottomSheetSeparatorStyle">
         <item name="android:backgroundTint">#E6E8EB</item>
     </style>
+    <style name="playlist_details_style">
+        <item name="android:textColor">@color/black_2</item>
+        <item name="android:gravity">center|start</item>
+        <item name="android:paddingHorizontal">10dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">@font/ys_display_regular</item>
+        <item name="android:paddingVertical">21dp</item>
+    </style>
     <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppModalStyle</item>
     </style>
     <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
         <item name="android:background">@drawable/bottom_sheet_bg_light</item>
     </style>
+    <style name="playlist_details_linear_layout_style">
+        <item name="android:background">@drawable/bottom_sheet_bg_light</item>
+    </style>
+
 </resources>

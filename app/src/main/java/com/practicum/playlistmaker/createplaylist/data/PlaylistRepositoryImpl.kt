@@ -1,12 +1,17 @@
 package com.practicum.playlistmaker.createplaylist.data
 
+import android.util.Log
 import com.practicum.playlistmaker.addToPlaylist.data.PlaylistTrackDao
 import com.practicum.playlistmaker.addToPlaylist.data.PlaylistTrackMapper
 import com.practicum.playlistmaker.createplaylist.data.db.PlaylistDao
+import com.practicum.playlistmaker.createplaylist.data.db.PlaylistEntity
 import com.practicum.playlistmaker.createplaylist.domain.PlaylistRepository
 import com.practicum.playlistmaker.createplaylist.domain.model.PlaylistModel
+import com.practicum.playlistmaker.playlist.presentation.model.DetailedPlaylistModel
 import com.practicum.playlistmaker.search.domain.Track
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 
 class PlaylistRepositoryImpl(
@@ -33,5 +38,57 @@ class PlaylistRepositoryImpl(
         val trackList = playlistDao.getTrackListForPlaylist(playlistId).toMutableList()
         trackList.add(track.trackId)
         playlistDao.updateTrackList(playlistId, trackList)
+    }
+
+    override fun getPlaylistById(id: Int): Flow<DetailedPlaylistModel> {
+        val playlistFlow = playlistDao.getPlaylistFlow(id)
+        val tracksFlow = playlistTrackDao.getAllTracks()
+        return playlistFlow
+            .filterNotNull()
+            .combine(tracksFlow) { playlist, trackList ->
+                val filteredTrackList = trackList.filter { playlist.trackList.contains(it.trackId) }
+                DetailedPlaylistModel(
+                    playlist.id,
+                    playlist.cover,
+                    playlist.name,
+                    playlist.description,
+                    playlist.trackList.size,
+                    (filteredTrackList.sumOf { it.trackTime } / 60_000),
+                    filteredTrackList.reversed().map { playlistTrackMapper.mapFromEntity(it) }
+                )
+            }
+    }
+
+    override suspend fun deleteTrackFromPlaylist(trackId: String, playlistId: Int) {
+        val trackList = playlistDao.getPlaylistById(playlistId).trackList.toMutableList()
+        Log.d("QQQ", "trackList $trackList, trackId $trackId")
+        trackList.remove(trackId)
+        Log.d("QQQ", "trackList $trackList, trackId $trackId")
+        playlistDao.updateTrackList(playlistId, trackList)
+        val playlists = playlistDao.getAllPlaylists()
+        val isUsed =checkIsTrackUsed(trackId, playlists)
+        Log.d("QQQ", "isUsed $isUsed")
+        if (!isUsed) playlistTrackDao.deleteTrack(trackId)
+    }
+
+    override suspend fun deletePlaylistById(playlist: DetailedPlaylistModel): Boolean {
+        playlistDao.deletePlaylistById(playlist.id)
+        val playlists = playlistDao.getAllPlaylists()
+        playlist.trackList.forEach {
+            val isUsed = checkIsTrackUsed(it.trackId, playlists)
+            if (!isUsed) playlistTrackDao.deleteTrack(it.trackId)
+        }
+        return true
+    }
+
+    private fun checkIsTrackUsed(trackId: String, playlists: List<PlaylistEntity>): Boolean {
+        var isUsed = false
+        for (i in playlists) {
+            if (i.trackList.contains(trackId)) {
+                isUsed = true
+                break
+            }
+        }
+        return isUsed
     }
 }

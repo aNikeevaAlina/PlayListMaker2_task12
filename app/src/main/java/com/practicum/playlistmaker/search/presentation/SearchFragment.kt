@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.internal.ViewUtils.hideKeyboard
 import com.practicum.playlistmaker.main.presentation.TrackAdapter
+import com.practicum.playlistmaker.player.presentation.PlayerFragment
 import com.practicum.playlistmaker.search.domain.Track
 import com.practicum.playlistmaker2.R
 import kotlinx.coroutines.Job
@@ -221,6 +222,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
 
     private fun openPlayer(track: Track) {
-        findNavController().navigate(R.id.playerFragment, bundleOf("track" to track))
+        findNavController().navigate(R.id.playerFragment, bundleOf(PlayerFragment.TRACK_KEY to track))
     }
 }

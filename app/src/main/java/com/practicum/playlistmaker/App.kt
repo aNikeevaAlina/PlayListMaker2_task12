@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import com.practicum.playlistmaker.addToPlaylist.di.playlistSmallModule
 import com.practicum.playlistmaker.createplaylist.di.createPlaylistModule
+import com.practicum.playlistmaker.editPlaylist.di.editPlaylistModule
 import com.practicum.playlistmaker.favorite.di.favoriteTracksModule
 import com.practicum.playlistmaker.media.di.mediaModule
 import com.practicum.playlistmaker.player.di.playerModule
+import com.practicum.playlistmaker.playlist.di.playlistModule
 import com.practicum.playlistmaker.search.di.searchModule
 import com.practicum.playlistmaker.settings.di.settingsModule
 import com.practicum.playlistmaker.settings.domain.SettingsRepository
@@ -28,7 +30,9 @@ class App : Application() {
                     playerModule,
                     favoriteTracksModule,
                     createPlaylistModule,
-                    playlistSmallModule
+                    playlistSmallModule,
+                    playlistModule,
+                    editPlaylistModule
                 )
             )
         }

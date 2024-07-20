@@ -26,4 +26,11 @@ interface PlaylistDao {
 
     @Query("SELECT * FROM PlaylistEntity")
     suspend fun getAllPlaylists(): List<PlaylistEntity>
+
+    @Query("SELECT * FROM PlaylistEntity WHERE id =:id")
+    fun getPlaylistFlow(id: Int): Flow<PlaylistEntity>
+
+    @Query("SELECT * FROM PlaylistEntity WHERE id =:id")
+    suspend fun getPlaylistById(id: Int): PlaylistEntity
+
 }

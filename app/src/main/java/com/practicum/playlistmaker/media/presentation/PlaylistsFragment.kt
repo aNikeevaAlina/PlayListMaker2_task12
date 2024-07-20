@@ -4,18 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.practicum.playlistmaker2.R
-import com.practicum.playlistmaker2.databinding.FragmentPlayerBinding
 import com.practicum.playlistmaker2.databinding.FragmentPlaylistsBinding
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
@@ -37,7 +35,10 @@ class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = PlaylistAdapter {
-
+            findNavController().navigate(
+                R.id.playlistFragment,
+                bundleOf(PLAYLIST_ID_KEY to it)
+            )
         }
 
         binding.playlistsRecycler.adapter = adapter
@@ -57,6 +58,7 @@ class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
     }
 
     companion object {
+        const val PLAYLIST_ID_KEY = "playlist_id"
         fun newInstance(): PlaylistsFragment {
             return PlaylistsFragment()
         }

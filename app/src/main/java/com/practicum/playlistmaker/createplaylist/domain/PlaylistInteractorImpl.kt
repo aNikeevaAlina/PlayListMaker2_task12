@@ -6,9 +6,9 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.core.net.toUri
 import com.practicum.playlistmaker.createplaylist.domain.model.PlaylistModel
+import com.practicum.playlistmaker.playlist.presentation.model.DetailedPlaylistModel
 import com.practicum.playlistmaker.search.domain.Track
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import java.io.File
 
 class PlaylistInteractorImpl(
@@ -22,6 +22,21 @@ class PlaylistInteractorImpl(
                 name = name,
                 description = description,
                 cover = internalCoverUri?.toString()
+            )
+        )
+    }
+
+    override suspend fun updatePlaylist(
+        playlist: DetailedPlaylistModel,
+        name: String,
+        description: String?,
+        cover: Uri?
+    ) {
+        playlistRepository.addPlaylist(
+            playlist.toSimpleModel().copy(
+                name = name,
+                description = description,
+                cover = cover.toString()
             )
         )
     }
@@ -48,5 +63,17 @@ class PlaylistInteractorImpl(
 
     override suspend fun addTrackToPlaylist(track: Track, playlistId: Int) {
         playlistRepository.addTrackToPlaylist(track, playlistId)
+    }
+
+    override fun getPlaylistById(id: Int): Flow<DetailedPlaylistModel> {
+        return playlistRepository.getPlaylistById(id)
+    }
+
+    override suspend fun deleteTrackFromPlaylist(trackId: String, playlistId: Int) {
+        playlistRepository.deleteTrackFromPlaylist(trackId, playlistId)
+    }
+
+    override suspend fun deletePlaylistById(playlist: DetailedPlaylistModel): Boolean {
+        return playlistRepository.deletePlaylistById(playlist)
     }
 }

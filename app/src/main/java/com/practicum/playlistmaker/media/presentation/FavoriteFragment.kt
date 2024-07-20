@@ -2,7 +2,6 @@ package com.practicum.playlistmaker.media.presentation
 
 import android.os.Bundle
 import android.view.View
-import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
@@ -13,12 +12,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.practicum.playlistmaker.main.presentation.TrackAdapter
+import com.practicum.playlistmaker.player.presentation.PlayerFragment
 import com.practicum.playlistmaker.search.domain.Track
-import com.practicum.playlistmaker.search.presentation.SearchFragment
 import com.practicum.playlistmaker2.R
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -70,7 +68,7 @@ class FavoriteFragment : Fragment(R.layout.fragment_favorites) {
     }
 
     private fun openPlayer(track: Track) {
-        findNavController().navigate(R.id.playerFragment, bundleOf("track" to track))
+        findNavController().navigate(R.id.playerFragment, bundleOf(PlayerFragment.TRACK_KEY to track))
     }
 
     companion object {
